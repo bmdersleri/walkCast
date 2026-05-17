@@ -23,7 +23,7 @@ body {
 .hero p { margin: 0; color: var(--muted); }
 
 .composer {
-  margin: 18px 0 26px;
+  margin: 18px 0 14px;
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 8px;
@@ -41,12 +41,36 @@ body {
   font-weight: 600;
 }
 
+.preferences {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+.preferences label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .9rem;
+}
+.preferences select {
+  border: 1px solid #cdd7e3;
+  border-radius: 8px;
+  padding: 5px 8px;
+}
+.toggle input { margin: 0; }
+
 .item-card {
   background: var(--card);
   border: 1px solid #dbe4ee;
   border-radius: 14px;
   padding: 14px;
   margin-bottom: 10px;
+}
+.item-card.dragging {
+  opacity: .5;
+  border-style: dashed;
 }
 .item-top {
   display: flex;
