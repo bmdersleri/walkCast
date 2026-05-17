@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>walkCast</title>
+  <link rel="stylesheet" href="./popup.css" />
+</head>
+<body>
+  <main>
+    <header>
+      <h1>walkCast</h1>
+      <p>Save and manage your queue</p>
+    </header>
+
+    <section class="row">
+      <input id="apiBase" type="text" value="http://127.0.0.1:8000/api/v1" />
+      <button id="saveConfig">Set</button>
+    </section>
+
+    <section class="row">
+      <button id="saveActive">Save Active Tab</button>
+      <button id="refresh">Refresh</button>
+    </section>
+
+    <section id="list"></section>
+  </main>
+
+  <script src="./popup.js" type="module"></script>
+</body>
+</html>

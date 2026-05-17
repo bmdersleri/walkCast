@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "walkCast Saver",
+  "version": "0.1.0",
+  "description": "Save active tab to walkCast and manage playlist.",
+  "permissions": ["activeTab", "storage"],
+  "host_permissions": ["http://127.0.0.1:8000/*", "http://localhost:8000/*"],
+  "action": {
+    "default_title": "walkCast",
+    "default_popup": "popup.html"
+  }
+}
