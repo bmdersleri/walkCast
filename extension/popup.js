@@ -43,15 +43,17 @@ function renderItem(apiBase, item) {
   actions.className = "actions";
 
   const deleteBtn = document.createElement("button");
-  deleteBtn.className = "danger";
-  deleteBtn.textContent = "Delete";
+  deleteBtn.className = "danger icon-btn";
+  deleteBtn.textContent = "🗑";
+  deleteBtn.title = "Delete";
+  deleteBtn.setAttribute("aria-label", "Delete");
   deleteBtn.onclick = async () => {
     await fetch(`${apiBase}/items/${item.id}`, { method: "DELETE" });
     await loadItems();
   };
+
   actions.appendChild(deleteBtn);
   card.appendChild(actions);
-
   return card;
 }
 
