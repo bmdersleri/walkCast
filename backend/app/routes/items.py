@@ -1,4 +1,6 @@
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from pathlib import Path
+
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 
 from backend.app.db.database import get_db
@@ -32,3 +34,31 @@ def get_item(item_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Item not found")
 
     return ItemCreateResponse(id=item.id, status=item.status.value, title=item.title, duration=item.duration)
+
+
+@router.post("/{item_id}/listen", response_model=ItemCreateResponse)
+def mark_item_listened(item_id: int, db: Session = Depends(get_db)):
+    item = db.get(Item, item_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    item.is_listened = True
+    db.commit()
+    db.refresh(item)
+    return ItemCreateResponse(id=item.id, status=item.status.value, title=item.title, duration=item.duration)
+
+
+@router.delete("/{item_id}", status_code=204, response_class=Response)
+def delete_item(item_id: int, db: Session = Depends(get_db)):
+    item = db.get(Item, item_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    if item.filepath:
+        file_path = Path(item.filepath)
+        if file_path.exists() and file_path.is_file():
+            file_path.unlink()
+
+    db.delete(item)
+    db.commit()
+    return Response(status_code=204)
