@@ -11,6 +11,17 @@ from backend.app.workers.downloader import download_audio
 router = APIRouter(prefix="/api/v1/items", tags=["items"])
 
 
+def _to_response(item: Item) -> ItemCreateResponse:
+    return ItemCreateResponse(
+        id=item.id,
+        status=item.status.value,
+        title=item.title,
+        duration=item.duration,
+        is_listened=item.is_listened,
+        filepath=item.filepath,
+    )
+
+
 @router.post("", response_model=ItemCreateResponse, status_code=201)
 def create_item(payload: ItemCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     item = Item(
@@ -24,7 +35,13 @@ def create_item(payload: ItemCreate, background_tasks: BackgroundTasks, db: Sess
 
     background_tasks.add_task(download_audio, item.id, str(payload.url))
 
-    return ItemCreateResponse(id=item.id, status=item.status.value, title=item.title, duration=item.duration)
+    return _to_response(item)
+
+
+@router.get("", response_model=list[ItemCreateResponse])
+def list_items(db: Session = Depends(get_db)):
+    items = db.query(Item).order_by(Item.created_at.desc()).all()
+    return [_to_response(item) for item in items]
 
 
 @router.get("/{item_id}", response_model=ItemCreateResponse)
@@ -33,7 +50,7 @@ def get_item(item_id: int, db: Session = Depends(get_db)):
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
 
-    return ItemCreateResponse(id=item.id, status=item.status.value, title=item.title, duration=item.duration)
+    return _to_response(item)
 
 
 @router.post("/{item_id}/listen", response_model=ItemCreateResponse)
@@ -45,7 +62,7 @@ def mark_item_listened(item_id: int, db: Session = Depends(get_db)):
     item.is_listened = True
     db.commit()
     db.refresh(item)
-    return ItemCreateResponse(id=item.id, status=item.status.value, title=item.title, duration=item.duration)
+    return _to_response(item)
 
 
 @router.delete("/{item_id}", status_code=204, response_class=Response)

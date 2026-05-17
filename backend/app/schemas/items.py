@@ -11,3 +11,5 @@ class ItemCreateResponse(BaseModel):
     status: str
     title: str | None = None
     duration: str | None = None
+    is_listened: bool = False
+    filepath: str | None = None
