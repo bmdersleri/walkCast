@@ -5,3 +5,5 @@ __pycache__/
 *.pyc
 *.db
 node_modules/
+backend/storage/
+mp3.py
