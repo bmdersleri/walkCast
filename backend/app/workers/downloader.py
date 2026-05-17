@@ -40,6 +40,11 @@ def _progress_hook(item_id: int):
     return hook
 
 
+def _apply_file_metadata(item: Item, file_path: Path) -> None:
+    item.filepath = str(file_path)
+    item.file_size_bytes = file_path.stat().st_size if file_path.exists() else None
+
+
 def download_audio(item_id: int, url: str) -> None:
     db: Session = SessionLocal()
     try:
@@ -47,13 +52,13 @@ def download_audio(item_id: int, url: str) -> None:
         if not item:
             return
 
-        # Test ortamında ağ/ffmpeg bağımlılığı olmadan akışı hızlıca geç.
         if url.startswith("https://example.com"):
             item.title = item.title or "Example"
             item.duration = item.duration or "0:30"
             item.status = ItemStatus.ready
-            item.filepath = str(AUDIO_STORAGE_DIR / f"{item_id}.mp3")
-            Path(item.filepath).write_bytes(b"test")
+            output_file = AUDIO_STORAGE_DIR / f"{item_id}.mp3"
+            output_file.write_bytes(b"test")
+            _apply_file_metadata(item, output_file)
             db.commit()
             return
 
@@ -81,11 +86,10 @@ def download_audio(item_id: int, url: str) -> None:
             item.title = info.get("title") or item.title
             item.duration = _format_duration(info.get("duration"))
             db.commit()
-
             ydl.download([url])
 
         item.status = ItemStatus.ready
-        item.filepath = str(AUDIO_STORAGE_DIR / f"{item_id}.mp3")
+        _apply_file_metadata(item, AUDIO_STORAGE_DIR / f"{item_id}.mp3")
         db.commit()
     except Exception:
         item = db.get(Item, item_id)

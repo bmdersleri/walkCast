@@ -13,3 +13,4 @@ class ItemCreateResponse(BaseModel):
     duration: str | None = None
     is_listened: bool = False
     filepath: str | None = None
+    file_size_bytes: int | None = None

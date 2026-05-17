@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import text
 
 from backend.app.db.database import Base, engine
 from backend.app.routes.items import router as items_router
@@ -22,6 +23,13 @@ app.add_middleware(
 )
 
 Base.metadata.create_all(bind=engine)
+
+# Lightweight runtime migration for existing SQLite DBs.
+with engine.begin() as conn:
+    columns = conn.execute(text("PRAGMA table_info(items)")).fetchall()
+    names = {col[1] for col in columns}
+    if "file_size_bytes" not in names:
+        conn.execute(text("ALTER TABLE items ADD COLUMN file_size_bytes INTEGER"))
 
 app.include_router(items_router)
 app.mount("/backend/storage/audio", StaticFiles(directory="backend/storage/audio"), name="audio")

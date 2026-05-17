@@ -19,6 +19,7 @@ def _to_response(item: Item) -> ItemCreateResponse:
         duration=item.duration,
         is_listened=item.is_listened,
         filepath=item.filepath,
+        file_size_bytes=item.file_size_bytes,
     )
 
 

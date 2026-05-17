@@ -5,14 +5,13 @@ const refreshBtn = document.getElementById("refresh");
 const listEl = document.getElementById("list");
 
 function statusLabel(status) {
-  const labels = {
-    queued: "Queued",
-    downloading: "Downloading",
-    converting_mp3: "Converting",
-    ready: "Ready",
-    error: "Error",
-  };
+  const labels = { queued: "Queued", downloading: "Downloading", converting_mp3: "Converting", ready: "Ready", error: "Error" };
   return labels[status] || status;
+}
+
+function formatSize(bytes) {
+  if (!bytes || bytes <= 0) return "-- MB";
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }
 
 async function getApiBase() {
@@ -20,9 +19,7 @@ async function getApiBase() {
   return cfg.apiBase || "http://127.0.0.1:8000/api/v1";
 }
 
-async function setApiBase(value) {
-  await chrome.storage.local.set({ apiBase: value });
-}
+async function setApiBase(value) { await chrome.storage.local.set({ apiBase: value }); }
 
 function renderItem(apiBase, item) {
   const card = document.createElement("article");
@@ -36,6 +33,7 @@ function renderItem(apiBase, item) {
     <div class="title">${title}</div>
     <div class="meta">
       <span class="badge">${duration}</span>
+      <span class="badge">${formatSize(item.file_size_bytes)}</span>
       <span class="badge ${item.status === "ready" ? "ready" : item.status === "error" ? "error" : ""}">${statusLabel(item.status)}</span>
       ${listened}
     </div>
@@ -63,36 +61,26 @@ async function loadItems() {
   try {
     const res = await fetch(`${apiBase}/items`);
     if (!res.ok) throw new Error("failed");
-
     const items = await res.json();
     listEl.innerHTML = "";
-    if (!items.length) {
-      listEl.textContent = "No items yet.";
-      return;
-    }
-
+    if (!items.length) { listEl.textContent = "No items yet."; return; }
     items.forEach((item) => listEl.appendChild(renderItem(apiBase, item)));
   } catch {
     listEl.textContent = "Could not connect backend.";
   }
 }
 
-saveConfigBtn.addEventListener("click", async () => {
-  await setApiBase(apiInput.value.trim());
-  await loadItems();
-});
+saveConfigBtn.addEventListener("click", async () => { await setApiBase(apiInput.value.trim()); await loadItems(); });
 
 saveActiveBtn.addEventListener("click", async () => {
   const apiBase = await getApiBase();
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.url) return;
-
   await fetch(`${apiBase}/items`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ url: tab.url }),
   });
-
   await loadItems();
 });
 
