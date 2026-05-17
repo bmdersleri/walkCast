@@ -1,58 +1,43 @@
-# PROJECT_BRIEF.md — walkCast
+# walkCast — Project Brief
 
-## 1. Project Identity
+## Project Identity
 
 | Item | Value |
 |---|---|
 | Project name | walkCast |
 | Repository | `https://github.com/bmdersleri/walkCast.git` |
 | Tagline | Save videos now, listen later automatically. |
-| Short description | A self-hosted playlist management and automated YouTube-to-MP3 extraction system for turning learning videos into a mobile listening workflow. |
-| Primary owner | Project owner / repository maintainer |
-| Target users | Academics, students, researchers, lifelong learners |
-| Deployment | Personal or institutional self-hosted Ubuntu server |
+| Short description | A self-hosted system that turns saved video URLs into MP3 tracks for mobile listening. |
+| Primary owner | Repository maintainer |
+| Target users | Students, academics, researchers, lifelong learners |
+| Deployment target | Self-hosted Ubuntu/Linux server |
 
----
+## Problem Statement
 
-## 2. Problem Statement
+Educational content is often discovered on desktop but consumed later on mobile while walking or commuting. Existing tools usually require manual steps such as downloading, transferring files, or keeping video apps open.
 
-Many valuable educational and technical materials are published as videos. Users often discover them while working at a desktop computer but want to consume the content later on a phone, especially while walking or commuting. Existing tools require manual downloading, transferring files to the phone, or keeping the screen on for video apps.
+walkCast solves this with an automated flow:
 
-walkCast solves this by automating the pipeline:
-1. **Collect video URLs** directly via a Chrome Extension.
-2. **Automatically extract and convert** the audio (MP3) on a personal self-hosted server using `yt-dlp` and `FFmpeg`.
-3. **Consume and manage** the audio via a mobile PWA with auto-cleanup features.
+1. Capture video URLs from a Chrome extension.
+2. Extract and convert audio on a self-hosted backend using `yt-dlp` and FFmpeg.
+3. Consume tracks in a mobile web UI with cleanup and offline-friendly controls.
 
----
+## Vision
 
-## 3. Vision
+`Discover video -> Save from Extension -> Backend downloads/converts -> Listen on mobile -> Cleanup`
 
-walkCast should become a completely private, automated learning audio pipeline:
+## Core Use Cases
 
-`Discover video → Extension Click → Server Downloads & Converts to MP3 → Listen on Phone → Auto-Delete`
+- `UC-01` Save active browser tab to a listening queue.
+- `UC-02` Automatically process saved URL in the background and track status.
+- `UC-03` Listen from mobile web UI, control playback speed, and continue with next item based on user preference.
+- `UC-04` Delete server files after listening to keep storage under control.
+- `UC-05` Save tracks for offline playback on mobile.
 
----
+## Product Principles
 
-## 4. Target Use Cases
-
-### UC-01 — Save a useful video page
-A user opens a lecture or tutorial in Chrome and saves it to a walkCast playlist with one click. 
-
-### UC-02 — Automated Background Processing
-Once saved, the backend immediately extracts metadata (title, duration) and starts downloading and converting the video to MP3 in the background. The user sees real-time progress.
-
-### UC-03 — Listen and Manage on Phone
-The user opens the mobile PWA, sees the generated MP3 files with their durations, and listens directly from the server.
-
-### UC-04 — Listen & Delete Workflow
-After finishing a track, the system marks it as "Listened" and prompts the user to delete it, freeing up server storage space.
-
----
-
-## 5. Product Principles
-
-1. **Self-hosted & Private:** No public SaaS. All data and MP3 files stay on the user's server.
-2. **Automated:** No manual file uploads. The server handles extraction via `yt-dlp`.
-3. **Storage-Conscious:** Easy deletion of physical files from the server after listening.
-4. **Mobile-friendly:** Listening on a phone is a first-class workflow.
-5. **No AI/Agent Dependency:** The system is triggered purely by explicit user actions.
+1. Privacy-first self-hosted architecture.
+2. Minimal manual operations; background automation by default.
+3. Storage-conscious lifecycle (listen, then delete if desired).
+4. Mobile-first listening experience.
+5. Explicit user control for destructive actions.

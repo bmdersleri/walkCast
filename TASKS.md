@@ -1,36 +1,62 @@
-# TASKS.md — walkCast Implementation Backlog
+# walkCast — Implementation Backlog
 
-## Phase 1 — Backend & Database Refactoring
-Goal: Prepare the database schema for automated extraction.
-- [ ] Add `duration` (String) and `is_listened` (Boolean, default False) to `Item` model.
-- [ ] Update `status` Enum to include: `queued`, `downloading`, `converting_mp3`, `ready`, `error`.
-- [ ] Generate and apply Alembic migration for the schema changes.
+## Phase 1 — Backend and Database Foundation
 
-## Phase 2 — yt-dlp Background Worker
-Goal: Integrate `mp3.py` logic into FastAPI.
-- [ ] Move `yt-dlp` download logic into `backend/app/workers/downloader.py`.
-- [ ] Implement `extract_info` to save Title and Duration to the database before downloading.
-- [ ] Implement `progress_hooks` to update item `status` (downloading, converting, ready) in the database.
-- [ ] Refactor `POST /api/v1/items` to accept a URL and trigger the worker via FastAPI `BackgroundTasks`.
+Goal: Prepare schema and status model for background extraction.
 
-## Phase 3 — Listen & Delete Workflow (Backend)
-Goal: API endpoints for cleanup and tracking.
-- [ ] Create `POST /api/v1/items/{id}/listen` endpoint to mark `is_listened = True`.
-- [ ] Update `DELETE /api/v1/items/{id}` endpoint to use `os.remove()` to delete the physical MP3 file from `storage/audio/` before deleting the database record.
+- [x] Add `duration` and `is_listened` fields to `Item` model.
+- [x] Align `status` enum with workflow states.
+- [x] Add lightweight migration path for schema evolution.
 
-## Phase 4 — Mobile PWA Polish
-Goal: Expose new metadata and cleanup features to the user on mobile.
-- [ ] Update `ItemCard` component to display `title` and `duration` (e.g., 14:05).
-- [ ] Add visual badges for processing statuses (Downloading, Converting, Ready).
-- [ ] Implement HTML5 audio `onended` event listener.
-- [ ] Trigger the `/listen` API call when audio finishes.
-- [ ] Show a confirmation dialog after audio finishes: "Delete from server?". If yes, call `DELETE` API.
+## Phase 2 — Background Worker Integration
 
-## Phase 5 — Chrome Extension Updates
-Goal: Make the extension a mini-management dashboard.
-- [ ] Update popup UI to show Item Titles, Durations, and Statuses instead of just URLs.
-- [ ] Add a "Delete" (Trash) button next to each item in the extension to trigger the backend `DELETE` endpoint.
+Goal: Integrate MP3 extraction flow into FastAPI backend.
 
-## Phase 6 — Testing & Deployment
-- [ ] Test the full pipeline: Save via Extension -> Observe Download -> Play in PWA -> Auto-Delete.
-- [ ] Ensure `yt-dlp` and `ffmpeg` are properly installed in the deployment environment (Ubuntu/Systemd).
+- [x] Implement worker in `backend/app/workers/downloader.py`.
+- [x] Save metadata (`title`, `duration`) before download.
+- [x] Update progress statuses via hooks.
+- [x] Trigger worker from `POST /api/v1/items` using `BackgroundTasks`.
+
+## Phase 3 — Listen and Delete Workflow (Backend)
+
+Goal: Add API operations for tracking and cleanup.
+
+- [x] Implement `POST /api/v1/items/{id}/listen`.
+- [x] Implement `DELETE /api/v1/items/{id}` with physical file deletion.
+- [x] Add item list endpoint `GET /api/v1/items`.
+
+## Phase 4 — Mobile PWA Enhancements
+
+Goal: Provide practical mobile listening and cleanup experience.
+
+- [x] Show title, duration, status badges in item cards.
+- [x] Handle `audio.onended` and trigger listen update.
+- [x] Ask for delete confirmation.
+- [x] Add drag-and-drop playlist ordering.
+- [x] Add playback speed controls (`1.0x`–`2.0x`).
+- [x] Add optional auto-play next behavior.
+- [x] Add `Download`, `Save Offline`, and `Play Offline` controls.
+- [x] Add offline-state visual feedback (`Offline Saved`).
+
+## Phase 5 — Chrome Extension Enhancements
+
+Goal: Turn extension popup into a compact management dashboard.
+
+- [x] Show title, duration, size, and status in compact cards.
+- [x] Add item delete action.
+- [x] Add icon-based controls for compact UI.
+- [x] Add `up/down` ordering controls with persistent local order.
+
+## Phase 6 — Testing and Readiness
+
+- [x] Add API smoke test for `create -> listen -> delete` flow.
+- [x] Run smoke test successfully in local environment.
+- [ ] Add UI-level automated tests for PWA and extension.
+- [ ] Validate ffmpeg/yt-dlp/aria2c availability in deployment profile.
+
+## Next Candidate Tasks
+
+- [ ] Persist playlist order server-side (shared across extension and PWA).
+- [ ] Add pagination/filter/search for large queues.
+- [ ] Add richer offline media management (delete local copy, usage stats).
+- [ ] Add authentication and authorization for multi-user scenarios.
