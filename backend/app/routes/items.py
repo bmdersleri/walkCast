@@ -11,7 +11,24 @@ from backend.app.workers.downloader import download_audio
 router = APIRouter(prefix="/api/v1/items", tags=["items"])
 
 
-def _to_response(item: Item) -> ItemCreateResponse:
+def _resolve_file_size(item: Item, db: Session) -> int | None:
+    if item.file_size_bytes is not None:
+        return item.file_size_bytes
+
+    if not item.filepath:
+        return None
+
+    file_path = Path(item.filepath)
+    if not file_path.exists() or not file_path.is_file():
+        return None
+
+    size = file_path.stat().st_size
+    item.file_size_bytes = size
+    db.commit()
+    return size
+
+
+def _to_response(item: Item, db: Session) -> ItemCreateResponse:
     return ItemCreateResponse(
         id=item.id,
         status=item.status.value,
@@ -19,7 +36,7 @@ def _to_response(item: Item) -> ItemCreateResponse:
         duration=item.duration,
         is_listened=item.is_listened,
         filepath=item.filepath,
-        file_size_bytes=item.file_size_bytes,
+        file_size_bytes=_resolve_file_size(item, db),
     )
 
 
@@ -36,13 +53,13 @@ def create_item(payload: ItemCreate, background_tasks: BackgroundTasks, db: Sess
 
     background_tasks.add_task(download_audio, item.id, str(payload.url))
 
-    return _to_response(item)
+    return _to_response(item, db)
 
 
 @router.get("", response_model=list[ItemCreateResponse])
 def list_items(db: Session = Depends(get_db)):
     items = db.query(Item).order_by(Item.created_at.desc()).all()
-    return [_to_response(item) for item in items]
+    return [_to_response(item, db) for item in items]
 
 
 @router.get("/{item_id}", response_model=ItemCreateResponse)
@@ -51,7 +68,7 @@ def get_item(item_id: int, db: Session = Depends(get_db)):
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
 
-    return _to_response(item)
+    return _to_response(item, db)
 
 
 @router.post("/{item_id}/listen", response_model=ItemCreateResponse)
@@ -63,7 +80,7 @@ def mark_item_listened(item_id: int, db: Session = Depends(get_db)):
     item.is_listened = True
     db.commit()
     db.refresh(item)
-    return _to_response(item)
+    return _to_response(item, db)
 
 
 @router.delete("/{item_id}", status_code=204, response_class=Response)

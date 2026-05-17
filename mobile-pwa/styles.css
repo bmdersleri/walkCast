@@ -110,6 +110,12 @@ body {
   padding: 8px 10px;
 }
 .actions .danger { color: var(--danger); border-color: #edb3ad; }
+.actions .offline-saved {
+  background: #d6f7ee;
+  border-color: #8ad5bf;
+  color: #115b4f;
+  font-weight: 600;
+}
 
 audio { width: 100%; margin-top: 10px; }
 

@@ -11,6 +11,7 @@ const autoplayNext = document.getElementById("autoplayNext");
 
 let currentItems = [];
 let draggedItemId = null;
+let offlineIds = new Set();
 
 function statusLabel(status) {
   const map = { queued: "Queued", downloading: "Downloading", converting_mp3: "Converting", ready: "Ready", error: "Error" };
@@ -91,6 +92,18 @@ async function getOfflineAudio(itemId) {
   return row?.blob || null;
 }
 
+async function loadOfflineIds() {
+  const db = await openOfflineDb();
+  const ids = await new Promise((resolve, reject) => {
+    const tx = db.transaction("audio", "readonly");
+    const req = tx.objectStore("audio").getAllKeys();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+  db.close();
+  offlineIds = new Set(ids.map((id) => Number(id)));
+}
+
 async function handleTrackEnded(itemId) {
   const autoNextEnabled = autoplayNext.checked;
   const nextReadyId = autoNextEnabled ? getNextReadyId(itemId) : null;
@@ -163,12 +176,17 @@ function renderItem(item) {
     actions.appendChild(downloadBtn);
 
     const offlineBtn = document.createElement("button");
-    offlineBtn.textContent = "Save Offline";
+    const offlineSaved = offlineIds.has(item.id);
+    offlineBtn.textContent = offlineSaved ? "Offline Saved" : "Save Offline";
+    offlineBtn.className = offlineSaved ? "offline-saved" : "";
     offlineBtn.onclick = async () => {
       if (!item.filepath) return;
       const res = await fetch(`${API_BASE.replace("/api/v1", "")}/${item.filepath}`);
       const blob = await res.blob();
       await saveOfflineAudio(item.id, blob);
+      offlineIds.add(item.id);
+      offlineBtn.textContent = "Offline Saved";
+      offlineBtn.className = "offline-saved";
       window.alert("Saved for offline playback.");
     };
     actions.appendChild(offlineBtn);
@@ -217,6 +235,7 @@ async function loadItems() {
   const response = await fetch(`${API_BASE}/items`);
   if (!response.ok) { itemsEl.textContent = "Could not load playlist."; return; }
   const list = await response.json();
+  await loadOfflineIds();
   currentItems = mergeOrderWithItems(list);
   renderList();
 }
