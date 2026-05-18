@@ -30,9 +30,9 @@
 
 ## Phase E — Offline and Playlist Management
 
-- [ ] Implement Save Offline download pipeline
-- [ ] Add offline state styling and button state transitions
-- [ ] Implement Play Offline with fallback logic
+- [x] Implement Save Offline download pipeline
+- [x] Add offline state styling and button state transitions
+- [x] Implement local-first playback with remote fallback logic
 - [ ] Add local offline delete option
 - [ ] Implement drag-and-drop reorder
 - [ ] Implement playlist create/select/reassign flows
@@ -122,3 +122,6 @@
 - [x] UI: show fast rewind/forward only on top card.
 - [x] UI: remove offline-play button.
 - [x] UI: tint download icon when item is downloaded/offline-saved.
+- [x] Feature: local-first + auto-download-on-play behavior.
+- [x] Feature: per-track download progress + ETA on cards.
+- [x] Feature: playlist-level sequential bulk download with overall progress.

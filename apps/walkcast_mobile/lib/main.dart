@@ -8,5 +8,6 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await Hive.openBox('walkcast_prefs');
+  await Hive.openBox('walkcast_audio_cache');
   runApp(const ProviderScope(child: WalkCastApp()));
 }

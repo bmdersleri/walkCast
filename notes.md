@@ -67,3 +67,10 @@
 - Top card now provides explicit adjacent-track navigation (`skip_previous` / `skip_next`) using ready-track sequence order.
 
 - Consolidated card actions: top-card-only seek controls and icon-based downloaded state improve scanability and reduce button clutter.
+- Adopted local-first playback strategy for mobile:
+  - local cache is preferred when available
+  - first play triggers background auto-download for future local playback
+- Added download observability:
+  - live per-item progress
+  - ETA derived from measured transfer speed
+  - playlist-wide sequential download queue progress in top panel

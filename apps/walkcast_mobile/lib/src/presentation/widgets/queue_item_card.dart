@@ -29,6 +29,7 @@ class QueueItemCard extends StatelessWidget {
     required this.progress,
     required this.isDownloading,
     required this.downloadProgress,
+    required this.downloadEtaSeconds,
     required this.currentPosition,
     required this.totalDuration,
     required this.onSeek,
@@ -57,6 +58,7 @@ class QueueItemCard extends StatelessWidget {
   final double progress;
   final bool isDownloading;
   final double downloadProgress;
+  final int? downloadEtaSeconds;
   final Duration currentPosition;
   final Duration totalDuration;
   final ValueChanged<double> onSeek;
@@ -171,6 +173,15 @@ class QueueItemCard extends StatelessWidget {
                     valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF2CB597)),
                   ),
                 ),
+                if (downloadEtaSeconds != null) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    _isTr
+                        ? 'Kalan: ${_fmtDuration(Duration(seconds: downloadEtaSeconds!))}'
+                        : 'ETA: ${_fmtDuration(Duration(seconds: downloadEtaSeconds!))}',
+                    style: TextStyle(fontSize: 11, color: baseText.withValues(alpha: 0.82)),
+                  ),
+                ],
               ],
               const SizedBox(height: 10),
               Wrap(

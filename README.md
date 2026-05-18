@@ -138,6 +138,17 @@ M1 target: Flutter MVP with parity for queue list, playback controls, delete con
 
 ## Latest Update (2026-05-18)
 
+- Added local-first playback behavior in Flutter mobile:
+  - if a track is already downloaded, playback starts from local cache first
+  - if not downloaded, playback starts from server and auto-download begins in background on play
+- Added per-track live download telemetry:
+  - in-card progress bar
+  - estimated remaining time (ETA)
+- Added playlist-level bulk download:
+  - `Download playlist` action in top controls
+  - sequential track-by-track download queue with live overall progress (`done/total`)
+- Offline cache is now persisted in Hive (`walkcast_audio_cache`) and linked to existing offline-saved state.
+
 - Fixed playback resume/seek continuity bug:
   - pressing play again on a paused track now resumes from the same position
   - seek slider no longer resets playback to start on play/pause transitions

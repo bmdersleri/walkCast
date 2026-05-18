@@ -1,4 +1,7 @@
+// ignore_for_file: experimental_member_use
+
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -8,7 +11,6 @@ import 'package:just_audio/just_audio.dart';
 import 'package:dio/dio.dart';
 
 import '../../core/config/app_config.dart';
-import '../../core/utils/download_helper.dart';
 import '../../domain/entities/queue_item.dart';
 import '../controllers/queue_controller.dart';
 import '../widgets/queue_item_card.dart';
@@ -32,12 +34,33 @@ class QueueScreen extends ConsumerStatefulWidget {
   ConsumerState<QueueScreen> createState() => _QueueScreenState();
 }
 
+class _BytesAudioSource extends StreamAudioSource {
+  _BytesAudioSource(this.bytes, this.id);
+
+  final Uint8List bytes;
+  final int id;
+
+  @override
+  Future<StreamAudioResponse> request([int? start, int? end]) async {
+    final safeStart = start ?? 0;
+    final safeEnd = end ?? bytes.length;
+    return StreamAudioResponse(
+      sourceLength: bytes.length,
+      contentLength: safeEnd - safeStart,
+      offset: safeStart,
+      stream: Stream<List<int>>.value(bytes.sublist(safeStart, safeEnd)),
+      contentType: 'audio/mpeg',
+    );
+  }
+}
+
 class _QueueScreenState extends ConsumerState<QueueScreen> {
   static const String _playModeAll = 'all';
   static const String _playModeSingle = 'single';
 
   final AudioPlayer _audioPlayer = AudioPlayer();
   Box? _prefs;
+  Box? _audioCache;
   final Dio _dio = Dio();
   StreamSubscription<PlayerState>? _playerStateSub;
 
@@ -59,6 +82,11 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
   double? _seekDragValueMillis;
   final Set<int> _downloadingIds = <int>{};
   final Map<int, double> _downloadProgressById = <int, double>{};
+  final Map<int, int> _downloadEtaSecsById = <int, int>{};
+  final Map<int, DateTime> _downloadStartById = <int, DateTime>{};
+  bool _bulkDownloading = false;
+  int _bulkTotal = 0;
+  int _bulkDone = 0;
 
   bool get _isTr => widget.languageCode == 'tr';
   String t(String en, String tr) => _isTr ? tr : en;
@@ -79,6 +107,9 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       }
       _audioPlayer.setSpeed(_playbackSpeed);
     }
+    _audioCache = Hive.isBoxOpen('walkcast_audio_cache')
+        ? Hive.box('walkcast_audio_cache')
+        : null;
     _playerStateSub = _audioPlayer.playerStateStream.listen((state) {
       if (mounted) {
         setState(() {
@@ -239,22 +270,34 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
         });
       }
       _resetSeekState();
+      final hasLocal = _hasOfflineBytes(item.id);
+      if (hasLocal) {
+        final localBytes = _readOfflineBytes(item.id)!;
+        await _audioPlayer.setAudioSource(_BytesAudioSource(localBytes, item.id));
+        _loadedAudioUrl = 'local-cache:${item.id}';
+        _loadedItemId = item.id;
+      } else {
+        _downloadAndCache(item, silentSuccess: true);
+      }
+
       String? loadedUrl;
       Object? lastErr;
-      for (final url in candidates) {
-        try {
-          await _audioPlayer.setUrl(url);
-          loadedUrl = url;
-          break;
-        } catch (err) {
-          lastErr = err;
+      if (!hasLocal) {
+        for (final url in candidates) {
+          try {
+            await _audioPlayer.setUrl(url);
+            loadedUrl = url;
+            break;
+          } catch (err) {
+            lastErr = err;
+          }
         }
+        if (loadedUrl == null) {
+          throw lastErr ?? Exception('No playable source');
+        }
+        _loadedAudioUrl = loadedUrl;
+        _loadedItemId = item.id;
       }
-      if (loadedUrl == null) {
-        throw lastErr ?? Exception('No playable source');
-      }
-      _loadedAudioUrl = loadedUrl;
-      _loadedItemId = item.id;
       _currentDuration = _audioPlayer.duration ?? Duration.zero;
       _suppressAutoAdvance = false;
       _allowAutoAdvance = (_playMode == _playModeAll);
@@ -277,40 +320,91 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
   }
 
   Future<void> _download(QueueItem item) async {
+    await _downloadAndCache(item);
+  }
+
+  bool _hasOfflineBytes(int itemId) => _audioCache?.containsKey('item_$itemId') ?? false;
+
+  Uint8List? _readOfflineBytes(int itemId) {
+    final raw = _audioCache?.get('item_$itemId');
+    if (raw is Uint8List) return raw;
+    if (raw is List<int>) return Uint8List.fromList(raw);
+    return null;
+  }
+
+  Future<bool> _downloadAndCache(QueueItem item, {bool silentSuccess = false}) async {
+    if (_downloadingIds.contains(item.id)) return false;
     final candidates = _audioUrlCandidates(item);
     if (candidates.isEmpty) {
-      _snack(t('Audio file is not ready for download.', 'Ses dosyasi indirilmeye hazir degil.'));
-      return;
+      if (!silentSuccess) {
+        _snack(t('Audio file is not ready for download.', 'Ses dosyasi indirilmeye hazir degil.'));
+      }
+      return false;
     }
-    final audioUrl = candidates.first;
-    final safeTitle = (item.title ?? 'track_${item.id}')
-        .replaceAll(RegExp(r'[^a-zA-Z0-9_-]+'), '_')
-        .replaceAll(RegExp('_+'), '_');
-    final fileName = '${safeTitle.isEmpty ? 'track_${item.id}' : safeTitle}.mp3';
 
+    final audioUrl = candidates.first;
     setState(() {
       _downloadingIds.add(item.id);
       _downloadProgressById[item.id] = 0;
+      _downloadStartById[item.id] = DateTime.now();
+      _downloadEtaSecsById.remove(item.id);
     });
 
     try {
-      await downloadWithProgress(
-        url: audioUrl,
-        fileName: fileName,
-        onProgress: (progress) {
-          if (!mounted) return;
+      final response = await _dio.get<List<int>>(
+        audioUrl,
+        options: Options(responseType: ResponseType.bytes),
+        onReceiveProgress: (received, total) {
+          if (!mounted || total <= 0) return;
+          final startedAt = _downloadStartById[item.id];
+          int? etaSecs;
+          if (startedAt != null) {
+            final elapsed = DateTime.now().difference(startedAt).inMilliseconds / 1000.0;
+            if (elapsed > 0.6 && received > 0) {
+              final speed = received / elapsed;
+              if (speed > 0) {
+                etaSecs = ((total - received) / speed).ceil().clamp(0, 36000);
+              }
+            }
+          }
           setState(() {
-            _downloadProgressById[item.id] = progress;
+            _downloadProgressById[item.id] = (received / total).clamp(0, 1);
+            if (etaSecs != null) _downloadEtaSecsById[item.id] = etaSecs;
           });
         },
       );
-      _toast(t('Download completed.', 'Indirme tamamlandi.'));
+
+      final bytes = response.data;
+      if (bytes == null || bytes.isEmpty) {
+        throw Exception('No file bytes');
+      }
+      await _audioCache?.put('item_${item.id}', Uint8List.fromList(bytes));
+
+      final updatedOffline = Set<int>.from(_offlineSavedIds)..add(item.id);
+      await _prefs?.put('offline_saved_ids', updatedOffline.toList());
+      if (mounted) {
+        setState(() {
+          _offlineSavedIds = updatedOffline;
+        });
+      }
+      if (!silentSuccess) {
+        _toast(t('Downloaded for offline use.', 'Cevrimdisi icin indirildi.'));
+      }
+      return true;
     } catch (_) {
-      _toast(t('Download failed.', 'Indirme basarisiz oldu.'));
+      if (!silentSuccess) {
+        _toast(t('Download failed.', 'Indirme basarisiz oldu.'));
+      }
+      return false;
     } finally {
       if (mounted) {
         setState(() {
           _downloadingIds.remove(item.id);
+          _downloadStartById.remove(item.id);
+          if ((_downloadProgressById[item.id] ?? 0) >= 1) {
+            _downloadProgressById.remove(item.id);
+            _downloadEtaSecsById.remove(item.id);
+          }
         });
       }
     }
@@ -320,8 +414,11 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
     final next = Set<int>.from(_offlineSavedIds);
     if (next.contains(item.id)) {
       next.remove(item.id);
+      await _audioCache?.delete('item_${item.id}');
       _snack(t('Removed from offline list.', 'Cevrimdisi listesinden kaldirildi.'));
     } else {
+      final ok = await _downloadAndCache(item, silentSuccess: true);
+      if (!ok) return;
       next.add(item.id);
       _snack(t('Marked as offline saved.', 'Cevrimdisi olarak isaretlendi.'));
     }
@@ -540,6 +637,34 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
     await _togglePlay(ready[targetIndex]);
   }
 
+  Future<void> _downloadAllInPlaylist() async {
+    if (_bulkDownloading) return;
+    final targets = _sequenceItems().where((i) => i.isReady && !_hasOfflineBytes(i.id)).toList(growable: false);
+    if (targets.isEmpty) {
+      _toast(t('All tracks already downloaded.', 'Tum parcalar zaten indirildi.'));
+      return;
+    }
+    setState(() {
+      _bulkDownloading = true;
+      _bulkTotal = targets.length;
+      _bulkDone = 0;
+    });
+    for (final item in targets) {
+      final ok = await _downloadAndCache(item, silentSuccess: true);
+      if (mounted) {
+        setState(() {
+          if (ok) _bulkDone += 1;
+        });
+      }
+    }
+    if (mounted) {
+      setState(() {
+        _bulkDownloading = false;
+      });
+    }
+    _toast(t('Playlist download completed.', 'Playlist indirme tamamlandi.'));
+  }
+
   void _toast(String message) {
     Fluttertoast.showToast(msg: message, toastLength: Toast.LENGTH_SHORT);
   }
@@ -637,6 +762,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
                         : 0.0,
                     isDownloading: _downloadingIds.contains(item.id),
                     downloadProgress: _downloadProgressById[item.id] ?? 0,
+                    downloadEtaSeconds: _downloadEtaSecsById[item.id],
                     currentPosition: item.id == _playingItemId
                         ? Duration(milliseconds: (_isSeeking ? (_seekDragValueMillis ?? _currentPosition.inMilliseconds.toDouble()) : _currentPosition.inMilliseconds.toDouble()).round())
                         : Duration.zero,
@@ -745,6 +871,32 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
                 );
               }).toList(growable: false),
             ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              ElevatedButton.icon(
+                onPressed: _bulkDownloading ? null : _downloadAllInPlaylist,
+                icon: const Icon(Icons.download_for_offline_rounded),
+                label: Text(t('Download playlist', 'Playlist indir')),
+              ),
+              if (_bulkDownloading) ...[
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      LinearProgressIndicator(value: _bulkTotal == 0 ? null : (_bulkDone / _bulkTotal).clamp(0, 1)),
+                      const SizedBox(height: 4),
+                      Text(
+                        t('Downloading: $_bulkDone/$_bulkTotal', 'Indiriliyor: $_bulkDone/$_bulkTotal'),
+                        style: TextStyle(color: titleColor, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
           ),
           const SizedBox(height: 10),
           Row(
