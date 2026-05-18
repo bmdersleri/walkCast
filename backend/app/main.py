@@ -26,6 +26,8 @@ with engine.begin() as conn:
         conn.execute(text("ALTER TABLE items ADD COLUMN file_size_bytes INTEGER"))
     if "audio_quality" not in names:
         conn.execute(text("ALTER TABLE items ADD COLUMN audio_quality TEXT DEFAULT 'medium'"))
+    if "playlist_name" not in names:
+        conn.execute(text("ALTER TABLE items ADD COLUMN playlist_name TEXT"))
 
 app.include_router(items_router)
 app.mount("/backend/storage/audio", StaticFiles(directory="backend/storage/audio"), name="audio")

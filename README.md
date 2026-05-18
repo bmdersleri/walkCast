@@ -236,3 +236,9 @@ cd /home/haytekllm/projects/walkcast-clean
 
 - UI simplified: fast rewind/forward controls are shown only on the top card; offline-play button removed.
 - Download icon now indicates downloaded/offline state via color tint.
+
+- Playlist name sync: backend now persists `playlist_name`; extension sends playlist name on create/update; Flutter prioritizes this field over numeric fallback labels.
+
+- Default theme updated to dark mode on first launch.
+- Added About screen with repository URL, author (Ismail Kirbas), app version, and build date (from `WALKCAST_BUILD_DATE`).
+- Android release APK successfully built at `apps/walkcast_mobile/build/app/outputs/flutter-apk/app-release.apk`.

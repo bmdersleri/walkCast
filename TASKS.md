@@ -129,3 +129,9 @@
 - [x] Fix: listened/finished tracks are excluded from auto-start continuation flow.
 - [x] Optimization: backend download pipeline now prefers smallest audio stream over highest-bitrate source.
 - [x] Optimization: enforce strict audio-only stream selection (no video stream fallback) before MP3 conversion.
+
+- [x] Fix: playlist names from Chrome extension are persisted and rendered in Flutter (no more `Playlist #id` fallback when name exists).
+
+- [x] UI: default app theme is dark mode.
+- [x] Feature: About screen (GitHub URL, author, version, build date).
+- [x] Build: verified Android release APK generation.

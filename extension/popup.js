@@ -265,10 +265,12 @@ async function moveItem(itemId, direction) {
 }
 
 async function changeItemPlaylist(apiBase, itemId, playlistId) {
+  const playlists = await getPlaylists();
+  const playlistName = playlistNameById(playlists, playlistId);
   await fetch(`${apiBase}/items/${itemId}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ playlist_id: playlistId }),
+    body: JSON.stringify({ playlist_id: playlistId, playlist_name: playlistName }),
   });
 }
 
@@ -395,11 +397,18 @@ saveActiveBtn.addEventListener("click", async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.url) return;
   const activePlaylistId = Number(activePlaylistEl.value || (await getActivePlaylistId()));
+  const playlists = await getPlaylists();
+  const activePlaylistName = playlistNameById(playlists, activePlaylistId);
   const audioQuality = await getAudioQuality();
   await fetch(`${apiBase}/items`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url: tab.url, playlist_id: activePlaylistId, audio_quality: audioQuality }),
+    body: JSON.stringify({
+      url: tab.url,
+      playlist_id: activePlaylistId,
+      playlist_name: activePlaylistName,
+      audio_quality: audioQuality,
+    }),
   });
   await refreshAll();
 });

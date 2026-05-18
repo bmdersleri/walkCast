@@ -79,3 +79,10 @@
   - auto-next candidate list now excludes both server-listened and already-completed tracks
 - Downloader selection policy changed from best-audio-first to smallest-audio-first (`worstaudio` + sort by bitrate/size asc) to reduce ingest bandwidth and conversion latency.
 - Stream policy tightened: downloader now enforces direct audio-only fetch (`vcodec=none`) and then performs MP3 conversion.
+
+- Playlist naming consistency fixed end-to-end: extension now posts `playlist_name`, backend stores it, mobile reads and displays it as primary label.
+
+- Added mobile About screen and wired it from queue app bar.
+- Added package metadata dependency to display runtime app version.
+- Defaulted app theme mode to dark.
+- Verified release APK build output path under `build/app/outputs/flutter-apk`.

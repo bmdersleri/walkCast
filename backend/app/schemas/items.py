@@ -7,12 +7,14 @@ from pydantic import BaseModel, HttpUrl
 class ItemCreate(BaseModel):
     url: HttpUrl
     playlist_id: int | None = None
+    playlist_name: str | None = None
     audio_quality: Literal["good", "medium", "high"] = "medium"
 
 
 class ItemCreateResponse(BaseModel):
     id: int
     playlist_id: int | None = None
+    playlist_name: str | None = None
     audio_quality: Literal["good", "medium", "high"] = "medium"
     status: str
     title: str | None = None
@@ -26,3 +28,4 @@ class ItemCreateResponse(BaseModel):
 
 class ItemUpdatePlaylist(BaseModel):
     playlist_id: int
+    playlist_name: str | None = None

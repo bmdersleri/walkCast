@@ -14,6 +14,7 @@ import '../../core/config/app_config.dart';
 import '../../domain/entities/queue_item.dart';
 import '../controllers/queue_controller.dart';
 import '../widgets/queue_item_card.dart';
+import 'about_screen.dart';
 import 'settings_screen.dart';
 
 class QueueScreen extends ConsumerStatefulWidget {
@@ -695,6 +696,17 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       appBar: AppBar(
         title: Text(t('walkCast Queue', 'walkCast Liste')),
         actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => AboutScreen(languageCode: widget.languageCode),
+                ),
+              );
+            },
+            icon: const Icon(Icons.info_outline),
+            tooltip: t('About', 'Hakkinda'),
+          ),
           IconButton(
             onPressed: () async {
               await Navigator.of(context).push(

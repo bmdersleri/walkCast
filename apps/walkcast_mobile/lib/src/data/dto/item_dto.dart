@@ -6,6 +6,7 @@ class ItemDto {
     required this.status,
     required this.audioQuality,
     this.playlistId,
+    this.playlistName,
     this.title,
     this.duration,
     this.isListened = false,
@@ -15,6 +16,7 @@ class ItemDto {
 
   final int id;
   final int? playlistId;
+  final String? playlistName;
   final String status;
   final String audioQuality;
   final String? title;
@@ -27,6 +29,7 @@ class ItemDto {
     return ItemDto(
       id: json['id'] as int,
       playlistId: json['playlist_id'] as int?,
+      playlistName: json['playlist_name'] as String?,
       status: json['status'] as String? ?? 'queued',
       audioQuality: json['audio_quality'] as String? ?? 'medium',
       title: json['title'] as String?,
@@ -41,6 +44,7 @@ class ItemDto {
     return QueueItem(
       id: id,
       playlistId: playlistId,
+      playlistName: playlistName,
       status: status,
       audioQuality: audioQuality,
       title: title,

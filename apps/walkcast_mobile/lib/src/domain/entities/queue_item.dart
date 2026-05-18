@@ -4,6 +4,7 @@ class QueueItem {
     required this.status,
     required this.audioQuality,
     this.playlistId,
+    this.playlistName,
     this.title,
     this.duration,
     this.filepath,
@@ -13,6 +14,7 @@ class QueueItem {
 
   final int id;
   final int? playlistId;
+  final String? playlistName;
   final String status;
   final String audioQuality;
   final String? title;
@@ -24,6 +26,8 @@ class QueueItem {
   bool get isReady => status == 'ready';
 
   String get playlistLabel {
+    final direct = playlistName?.trim();
+    if (direct != null && direct.isNotEmpty) return direct;
     const names = <int, String>{
       1: 'Technology',
       2: 'Economy',

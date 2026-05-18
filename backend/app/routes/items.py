@@ -77,6 +77,7 @@ def _to_response(item: Item, db: Session) -> ItemCreateResponse:
     return ItemCreateResponse(
         id=item.id,
         playlist_id=item.playlist_id,
+        playlist_name=item.playlist_name,
         audio_quality=item.audio_quality or "medium",
         status=item.status.value,
         title=item.title,
@@ -93,6 +94,7 @@ def _to_response(item: Item, db: Session) -> ItemCreateResponse:
 def create_item(payload: ItemCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     item = Item(
         playlist_id=payload.playlist_id,
+        playlist_name=payload.playlist_name,
         audio_quality=payload.audio_quality,
         url=str(payload.url),
         status=ItemStatus.queued,
@@ -140,6 +142,7 @@ def update_item_playlist(item_id: int, payload: ItemUpdatePlaylist, db: Session 
         raise HTTPException(status_code=404, detail="Item not found")
 
     item.playlist_id = payload.playlist_id
+    item.playlist_name = payload.playlist_name
     db.commit()
     db.refresh(item)
     return _to_response(item, db)

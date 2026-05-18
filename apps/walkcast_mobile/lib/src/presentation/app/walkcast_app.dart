@@ -10,7 +10,7 @@ class WalkCastApp extends StatefulWidget {
 }
 
 class _WalkCastAppState extends State<WalkCastApp> {
-  ThemeMode _themeMode = ThemeMode.light;
+  ThemeMode _themeMode = ThemeMode.dark;
   String _languageCode = 'en';
 
   void _toggleTheme() {

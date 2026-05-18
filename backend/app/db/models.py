@@ -17,6 +17,7 @@ class Item(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     playlist_id = Column(Integer, index=True)
+    playlist_name = Column(String, nullable=True)
     url = Column(String, index=True, nullable=False)
 
     title = Column(String, nullable=True)
