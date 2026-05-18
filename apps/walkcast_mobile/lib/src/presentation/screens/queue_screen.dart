@@ -534,6 +534,20 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
     }
   }
 
+  Future<void> _playAdjacentTrack({required QueueItem anchorItem, required int delta}) async {
+    final ready = _sequenceItems().where((i) => i.isReady).toList(growable: false);
+    if (ready.isEmpty) return;
+    final anchorId = _playingItemId ?? anchorItem.id;
+    final currentIndex = ready.indexWhere((i) => i.id == anchorId);
+    if (currentIndex == -1) return;
+    final targetIndex = currentIndex + delta;
+    if (targetIndex < 0 || targetIndex >= ready.length) {
+      _toast(delta < 0 ? t('No previous track.', 'Onceki parca yok.') : t('No next track.', 'Sonraki parca yok.'));
+      return;
+    }
+    await _togglePlay(ready[targetIndex]);
+  }
+
   void _toast(String message) {
     Fluttertoast.showToast(msg: message, toastLength: Toast.LENGTH_SHORT);
   }
@@ -620,6 +634,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
                   child: QueueItemCard(
                     key: ValueKey(item.id),
                     item: item,
+                    isTopCard: index == 1,
                     isActiveItem: _playingItemId == item.id,
                     isAudioRunning: _playingItemId == item.id && _isAudioRunning,
                     isOfflineSaved: _offlineSavedIds.contains(item.id),
@@ -645,6 +660,8 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
                     onPlayOffline: () => _playOffline(item),
                     onFastRewind: () => _seekBySeconds(item, -10),
                     onFastForward: () => _seekBySeconds(item, 10),
+                    onPreviousTrack: () => _playAdjacentTrack(anchorItem: item, delta: -1),
+                    onNextTrack: () => _playAdjacentTrack(anchorItem: item, delta: 1),
                     onMarkListened: () => _markAsListened(item),
                     onDeleteTrack: () => _deleteTrack(item),
                   ),

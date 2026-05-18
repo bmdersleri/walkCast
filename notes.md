@@ -63,3 +63,5 @@
 - Added `_allowAutoAdvance` runtime gate to eliminate accidental next-track transitions when mode is `single`.
 
 - Introduced `_sequenceItems()` (canonical order) vs `_visibleItems()` (UI-pinned order) split to prevent next-track regression.
+
+- Top card now provides explicit adjacent-track navigation (`skip_previous` / `skip_next`) using ready-track sequence order.

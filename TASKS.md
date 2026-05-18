@@ -116,3 +116,5 @@
 - [x] Fix: hard-lock auto-next off in track-by-track mode via explicit runtime guard flags.
 
 - [x] Fix: auto-next now follows true playlist order while keeping active card visually pinned at top.
+
+- [x] Feature: top-card previous/next track buttons.

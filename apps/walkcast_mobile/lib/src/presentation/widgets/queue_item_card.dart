@@ -17,8 +17,11 @@ class QueueItemCard extends StatelessWidget {
     required this.onPlayOffline,
     required this.onFastRewind,
     required this.onFastForward,
+    required this.onPreviousTrack,
+    required this.onNextTrack,
     required this.onMarkListened,
     required this.onDeleteTrack,
+    required this.isTopCard,
     required this.isActiveItem,
     required this.isAudioRunning,
     required this.isOfflineSaved,
@@ -43,8 +46,11 @@ class QueueItemCard extends StatelessWidget {
   final VoidCallback onPlayOffline;
   final VoidCallback onFastRewind;
   final VoidCallback onFastForward;
+  final VoidCallback onPreviousTrack;
+  final VoidCallback onNextTrack;
   final VoidCallback onMarkListened;
   final VoidCallback onDeleteTrack;
+  final bool isTopCard;
   final bool isActiveItem;
   final bool isAudioRunning;
   final bool isOfflineSaved;
@@ -219,6 +225,20 @@ class QueueItemCard extends StatelessWidget {
                         onPressed: onPlayOffline,
                         tooltip: _isTr ? 'Cevrimdisi oynat' : 'Play offline',
                       ),
+                      if (isTopCard)
+                        _iconAction(
+                          context,
+                          icon: Icons.skip_previous_rounded,
+                          onPressed: onPreviousTrack,
+                          tooltip: _isTr ? 'Onceki parca' : 'Previous track',
+                        ),
+                      if (isTopCard)
+                        _iconAction(
+                          context,
+                          icon: Icons.skip_next_rounded,
+                          onPressed: onNextTrack,
+                          tooltip: _isTr ? 'Sonraki parca' : 'Next track',
+                        ),
                       _iconAction(
                         context,
                         icon: Icons.fast_rewind_rounded,

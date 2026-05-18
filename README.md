@@ -211,3 +211,5 @@ cd /home/haytekllm/projects/walkcast-clean
 - Auto-next now requires explicit allow flag + play-all mode; track-by-track mode fully suppresses transition even on edge completion callbacks.
 
 - Playback sequence and UI pinning are now separated: auto-next uses canonical playlist order (e.g., 6->7), while UI still pins current track card to top.
+
+- Added previous/next track controls on the top queue card, wired to canonical playlist sequence.
