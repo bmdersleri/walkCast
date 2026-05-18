@@ -11,6 +11,11 @@ from backend.app.db.models import Item, ItemStatus
 
 AUDIO_STORAGE_DIR = Path("backend/storage/audio")
 AUDIO_STORAGE_DIR.mkdir(parents=True, exist_ok=True)
+QUALITY_TO_BITRATE = {
+    "good": "128",
+    "medium": "192",
+    "high": "320",
+}
 
 
 def _format_duration(seconds: int | None) -> str | None:
@@ -69,7 +74,7 @@ def download_audio(item_id: int, url: str) -> None:
                 {
                     "key": "FFmpegExtractAudio",
                     "preferredcodec": "mp3",
-                    "preferredquality": "192",
+                    "preferredquality": QUALITY_TO_BITRATE.get(item.audio_quality or "medium", "192"),
                 }
             ],
             "external_downloader": "aria2c",

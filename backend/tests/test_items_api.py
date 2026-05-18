@@ -9,10 +9,14 @@ client = TestClient(app)
 
 
 def test_create_listen_delete_item_flow():
-    create_resp = client.post("/api/v1/items", json={"url": "https://example.com/video", "playlist_id": 1})
+    create_resp = client.post(
+        "/api/v1/items",
+        json={"url": "https://example.com/video", "playlist_id": 1, "audio_quality": "high"},
+    )
     assert create_resp.status_code == 201
     payload = create_resp.json()
     item_id = payload["id"]
+    assert payload["audio_quality"] == "high"
 
     get_resp = client.get(f"/api/v1/items/{item_id}")
     assert get_resp.status_code == 200

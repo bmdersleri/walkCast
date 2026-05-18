@@ -9,7 +9,13 @@
 <body>
   <main>
     <header>
-      <h1>walkCast</h1>
+      <div class="header-line">
+        <h1>walkCast</h1>
+        <span id="serverState" class="server-state" title="Server status">
+          <span id="serverDot" class="server-dot is-connecting"></span>
+          <span id="serverText" class="server-text">Checking server</span>
+        </span>
+      </div>
       <p>Save and manage your queue</p>
     </header>
 
@@ -18,8 +24,22 @@
       <button id="saveConfig" class="icon-btn" title="Save API base" aria-label="Save API base">✓</button>
     </section>
 
+    <section class="row playlist-row">
+      <select id="activePlaylist"></select>
+      <button id="newPlaylist" class="icon-btn secondary" title="Create playlist" aria-label="Create playlist">＋</button>
+    </section>
+
+    <section class="quality-row">
+      <span class="quality-label">MP3 Quality</span>
+      <div id="qualityGroup" class="quality-group" role="radiogroup" aria-label="MP3 Quality">
+        <label><input type="radio" name="audioQuality" value="good" /> Good</label>
+        <label><input type="radio" name="audioQuality" value="medium" checked /> Medium</label>
+        <label><input type="radio" name="audioQuality" value="high" /> High</label>
+      </div>
+    </section>
+
     <section class="row row-actions">
-      <button id="saveActive" class="icon-btn" title="Save active tab" aria-label="Save active tab">＋</button>
+      <button id="saveActive" class="icon-btn" title="Save active tab" aria-label="Save active tab">⇣</button>
       <button id="refresh" class="icon-btn" title="Refresh list" aria-label="Refresh list">↻</button>
     </section>
 

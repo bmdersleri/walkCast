@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from backend.app.db.database import get_db
 from backend.app.db.models import Item, ItemStatus
-from backend.app.schemas.items import ItemCreate, ItemCreateResponse
+from backend.app.schemas.items import ItemCreate, ItemCreateResponse, ItemUpdatePlaylist
 from backend.app.workers.downloader import download_audio
 
 router = APIRouter(prefix="/api/v1/items", tags=["items"])
@@ -31,12 +31,16 @@ def _resolve_file_size(item: Item, db: Session) -> int | None:
 def _to_response(item: Item, db: Session) -> ItemCreateResponse:
     return ItemCreateResponse(
         id=item.id,
+        playlist_id=item.playlist_id,
+        audio_quality=item.audio_quality or "medium",
         status=item.status.value,
         title=item.title,
         duration=item.duration,
         is_listened=item.is_listened,
         filepath=item.filepath,
         file_size_bytes=_resolve_file_size(item, db),
+        created_at=item.created_at,
+        updated_at=item.updated_at,
     )
 
 
@@ -44,6 +48,7 @@ def _to_response(item: Item, db: Session) -> ItemCreateResponse:
 def create_item(payload: ItemCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     item = Item(
         playlist_id=payload.playlist_id,
+        audio_quality=payload.audio_quality,
         url=str(payload.url),
         status=ItemStatus.queued,
     )
@@ -78,6 +83,18 @@ def mark_item_listened(item_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Item not found")
 
     item.is_listened = True
+    db.commit()
+    db.refresh(item)
+    return _to_response(item, db)
+
+
+@router.patch("/{item_id}", response_model=ItemCreateResponse)
+def update_item_playlist(item_id: int, payload: ItemUpdatePlaylist, db: Session = Depends(get_db)):
+    item = db.get(Item, item_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    item.playlist_id = payload.playlist_id
     db.commit()
     db.refresh(item)
     return _to_response(item, db)

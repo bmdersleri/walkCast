@@ -25,6 +25,7 @@ class Item(Base):
     is_listened = Column(Boolean, default=False, nullable=False)
     filepath = Column(String, nullable=True)
     file_size_bytes = Column(Integer, nullable=True)
+    audio_quality = Column(String, nullable=False, default="medium")
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
