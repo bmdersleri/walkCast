@@ -40,3 +40,5 @@
 - Root cause for seek drift was static-file playback inconsistency under some web/runtime combinations; fixed by item-scoped range endpoint + client fallback.
 
 - Added backward-compatible audio source fallback to avoid hard dependency on newly deployed stream endpoint.
+
+- Replaced visual-only top pinning with source-list promotion on play to prevent stale card title/progress rendering after reorder.

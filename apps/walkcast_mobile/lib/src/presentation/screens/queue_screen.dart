@@ -48,7 +48,6 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
   String _playMode = 'all';
   Duration _currentPosition = Duration.zero;
   Duration _currentDuration = Duration.zero;
-  bool _isCurrentlyPlaying = false;
   bool _isSeeking = false;
   double? _seekDragValueMillis;
   final Set<int> _downloadingIds = <int>{};
@@ -71,11 +70,6 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       _audioPlayer.setSpeed(_playbackSpeed);
     }
     _playerStateSub = _audioPlayer.playerStateStream.listen((state) {
-      if (mounted) {
-        setState(() {
-          _isCurrentlyPlaying = state.playing;
-        });
-      }
       if (state.processingState == ProcessingState.completed) {
         _handleTrackCompleted();
       }
@@ -198,10 +192,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
 
     try {
       if (mounted && _playingItemId != item.id) {
-        setState(() {
-          _playingItemId = item.id;
-          _currentPosition = Duration.zero;
-        });
+        _activateItem(item.id, resetPosition: true);
       }
 
       if (_loadedItemId == item.id && _audioPlayer.playing) {
@@ -212,9 +203,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       if (_loadedItemId == item.id && !_audioPlayer.playing) {
         await _audioPlayer.play();
         if (mounted) {
-          setState(() {
-            _playingItemId = item.id;
-          });
+          _activateItem(item.id);
         }
         return;
       }
@@ -239,9 +228,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       await _audioPlayer.setSpeed(_playbackSpeed);
       await _audioPlayer.play();
       if (mounted) {
-        setState(() {
-          _playingItemId = item.id;
-        });
+        _activateItem(item.id);
       }
     } catch (_) {
       if (mounted) {
@@ -349,15 +336,24 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
   }
 
   List<QueueItem> _visibleItems() {
-    final base = _selectedPlaylist == 'All'
+    return _selectedPlaylist == 'All'
         ? List<QueueItem>.from(_items)
         : _items.where((item) => item.playlistLabel == _selectedPlaylist).toList(growable: true);
-    if (_playingItemId == null) return base;
-    final idx = base.indexWhere((item) => item.id == _playingItemId);
-    if (idx <= 0) return base;
-    final playing = base.removeAt(idx);
-    base.insert(0, playing);
-    return base;
+  }
+
+  void _activateItem(int itemId, {bool resetPosition = false}) {
+    setState(() {
+      _playingItemId = itemId;
+      if (resetPosition) {
+        _currentPosition = Duration.zero;
+        _currentDuration = Duration.zero;
+      }
+      final idx = _items.indexWhere((item) => item.id == itemId);
+      if (idx > 0) {
+        final active = _items.removeAt(idx);
+        _items.insert(0, active);
+      }
+    });
   }
 
   void _moveUp(int index) {
@@ -547,7 +543,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
                   child: QueueItemCard(
                     key: ValueKey(item.id),
                     item: item,
-                    isPlaying: _playingItemId == item.id && _isCurrentlyPlaying,
+                    isPlaying: _playingItemId == item.id,
                     isOfflineSaved: _offlineSavedIds.contains(item.id),
                     isZebraOdd: (index - 1).isOdd,
                     languageCode: widget.languageCode,

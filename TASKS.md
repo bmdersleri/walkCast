@@ -88,3 +88,6 @@
 - [x] Backend test: HTTP range response validation.
 
 - [x] Compatibility fix: mobile player fallback URL chain for mixed backend deployments.
+
+- [x] Fix: playing item is moved to top in source list for stable card binding.
+- [x] Fix: active card progress/time binding now follows `_playingItemId` directly.

@@ -159,3 +159,5 @@ M1 target: Flutter MVP with parity for queue list, playback controls, delete con
 - Mobile player now uses item-scoped audio endpoint for stable seek/skip behavior.
 
 - Mobile playback now auto-falls back to static audio URL when item-stream endpoint is unavailable (prevents play failures during mixed backend versions).
+
+- Active playback now reorders the underlying queue list (not only visual copy), ensuring top-card title and live time bindings stay synced with the playing track.
