@@ -74,6 +74,7 @@ Do not commit APK files into git history.
 Upload APK/AAB artifacts to GitHub Releases:
 
 - [https://github.com/bmdersleri/walkCast/releases](https://github.com/bmdersleri/walkCast/releases)
+- Latest prepared mobile artifacts: [v0.1.0-mobile1](https://github.com/bmdersleri/walkCast/releases/tag/v0.1.0-mobile1)
 
 ## 5) Install APK (optional with ADB)
 

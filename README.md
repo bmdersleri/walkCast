@@ -241,6 +241,6 @@ cd /home/haytekllm/projects/walkcast-clean
 
 - Default theme updated to dark mode on first launch.
 - Added About screen with repository URL, author (Ismail Kirbas), app version, and build date (from `WALKCAST_BUILD_DATE`).
-- Android APK is versioned in repository:
-  - `apps/walkcast_mobile/releases/walkcast-mobile-v0.1.0+1.apk`
-  - Download: [walkcast-mobile-v0.1.0+1.apk](https://github.com/bmdersleri/walkCast/raw/main/apps/walkcast_mobile/releases/walkcast-mobile-v0.1.0+1.apk)
+- Android artifacts are distributed via GitHub Releases (not committed to git):
+  - Releases page: [https://github.com/bmdersleri/walkCast/releases](https://github.com/bmdersleri/walkCast/releases)
+  - Latest prepared mobile assets: [v0.1.0-mobile1](https://github.com/bmdersleri/walkCast/releases/tag/v0.1.0-mobile1)
