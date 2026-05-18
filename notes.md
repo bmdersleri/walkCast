@@ -57,3 +57,5 @@
 - Added source-switch guard: stream updates are ignored while no loaded item is set, eliminating frozen/mismatched top-card timer artifacts.
 
 - Added completion guard: auto-advance now requires natural end threshold and is suppressed after user pause actions.
+
+- Added render-level active pinning in `_visibleItems()` to prevent stale previous-title top-card scenarios.

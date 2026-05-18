@@ -205,3 +205,5 @@ cd /home/haytekllm/projects/walkcast-clean
 - Active track slider now stays visible while duration is loading (disabled until duration is known).
 
 - Fixed unwanted auto-next in track-by-track mode by suppressing completion-based advance after manual pause/stop and requiring natural end detection before auto-advance.
+
+- Added visible-list active-item pinning guard so the top card title always reflects the currently playing track.

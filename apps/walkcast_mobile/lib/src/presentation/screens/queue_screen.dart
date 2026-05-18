@@ -370,9 +370,18 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
   }
 
   List<QueueItem> _visibleItems() {
-    return _selectedPlaylist == 'All'
+    final base = _selectedPlaylist == 'All'
         ? List<QueueItem>.from(_items)
         : _items.where((item) => item.playlistLabel == _selectedPlaylist).toList(growable: true);
+    if (_playingItemId == null) {
+      return base;
+    }
+    final idx = base.indexWhere((item) => item.id == _playingItemId);
+    if (idx > 0) {
+      final active = base.removeAt(idx);
+      base.insert(0, active);
+    }
+    return base;
   }
 
   void _activateItem(int itemId, {bool resetPosition = false}) {

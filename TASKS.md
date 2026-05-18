@@ -110,3 +110,5 @@
 - [x] UX: keep active slider visible even before duration arrives.
 
 - [x] Fix: track-by-track mode no longer auto-advances after manual stop/pause.
+
+- [x] Fix: top card title now forced to active playing item via visible-list pinning.
