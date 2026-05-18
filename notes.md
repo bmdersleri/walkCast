@@ -32,3 +32,5 @@
 
 - Fixed mobile playback selection bug: tapping a track now starts that exact track and pins it to top immediately.
 - Fixed seek persistence bug: seeking within current track no longer falls back to the start on resume.
+
+- Added stable item keys in Flutter queue list to keep card/slider bindings correct during active-item reordering.

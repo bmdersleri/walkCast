@@ -148,3 +148,5 @@ M1 target: Flutter MVP with parity for queue list, playback controls, delete con
   - `flutter test` passed
 
 - Bugfix: Mobile player now tracks loaded item identity to avoid wrong-track autoplay and unwanted reset after seek.
+
+- Fixed strict loaded-track playback flow: tapping a card now loads/plays that exact item, with stop->setUrl sequencing to avoid stale source playback.

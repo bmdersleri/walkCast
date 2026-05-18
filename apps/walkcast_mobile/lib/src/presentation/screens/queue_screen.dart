@@ -194,26 +194,31 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
     }
 
     try {
-      if (_playingItemId == item.id && _audioPlayer.playing) {
+      if (_loadedItemId == item.id && _audioPlayer.playing) {
         await _audioPlayer.pause();
         return;
       }
 
-      if (_playingItemId == item.id && _loadedItemId == item.id && !_audioPlayer.playing) {
+      if (_loadedItemId == item.id && !_audioPlayer.playing) {
         await _audioPlayer.play();
+        if (mounted) {
+          setState(() {
+            _playingItemId = item.id;
+          });
+        }
         return;
       }
 
+      await _audioPlayer.stop();
+      await _audioPlayer.setUrl(audioUrl);
+      _loadedItemId = item.id;
+      await _audioPlayer.setSpeed(_playbackSpeed);
+      await _audioPlayer.play();
       if (mounted) {
         setState(() {
           _playingItemId = item.id;
         });
       }
-
-      await _audioPlayer.setUrl(audioUrl);
-      _loadedItemId = item.id;
-      await _audioPlayer.setSpeed(_playbackSpeed);
-      await _audioPlayer.play();
     } catch (_) {
       if (mounted) {
         setState(() {
@@ -376,7 +381,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
   }
 
   Future<void> _onSeekEnd(double value) async {
-    if (_playingItemId == null) return;
+    if (_playingItemId == null || _loadedItemId != _playingItemId) return;
     try {
       final target = _seekDragValueMillis ?? value;
       await _audioPlayer.seek(Duration(milliseconds: target.round()));
@@ -485,6 +490,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: QueueItemCard(
+                    key: ValueKey(item.id),
                     item: item,
                     isPlaying: _playingItemId == item.id && _isCurrentlyPlaying,
                     isOfflineSaved: _offlineSavedIds.contains(item.id),

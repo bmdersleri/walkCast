@@ -74,3 +74,6 @@
 
 - [x] Fix: selected track play action now starts the tapped item (not first queue item).
 - [x] Fix: seek-to-position now resumes from selected position reliably.
+
+- [x] Fix: card tap now always plays selected item (prevents stale first-track playback).
+- [x] Fix: seek end now applies only to currently loaded item and persists position.
