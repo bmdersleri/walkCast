@@ -46,3 +46,5 @@
 - Hardened play mode parsing with explicit enum-like constants (`all` / `single`) and fallback to `single` for unknown stored values.
 
 - Added active playback LED state to queue card actions for immediate play/pause feedback.
+
+- Duration stream now accepts null->zero transition to avoid carrying stale duration to newly selected track.

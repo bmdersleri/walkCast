@@ -94,9 +94,9 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       });
     });
     _audioPlayer.durationStream.listen((dur) {
-      if (!mounted || dur == null) return;
+      if (!mounted) return;
       setState(() {
-        _currentDuration = dur;
+        _currentDuration = dur ?? Duration.zero;
       });
     });
   }
@@ -205,6 +205,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
     try {
       if (mounted && _playingItemId != item.id) {
         _activateItem(item.id, resetPosition: true);
+        _resetSeekState();
       }
 
       if (_loadedItemId == item.id && _audioPlayer.playing) {
@@ -221,6 +222,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       }
 
       await _audioPlayer.stop();
+      _resetSeekState();
       String? loadedUrl;
       Object? lastErr;
       for (final url in candidates) {
@@ -365,6 +367,16 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
         final active = _items.removeAt(idx);
         _items.insert(0, active);
       }
+    });
+  }
+
+  void _resetSeekState() {
+    if (!mounted) return;
+    setState(() {
+      _isSeeking = false;
+      _seekDragValueMillis = null;
+      _currentPosition = Duration.zero;
+      _currentDuration = Duration.zero;
     });
   }
 

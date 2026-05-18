@@ -165,3 +165,5 @@ M1 target: Flutter MVP with parity for queue list, playback controls, delete con
 - Play mode default is now `track by track` (`single`), and only `play all` enables automatic next-track transition on completion.
 
 - Play button now includes LED status feedback on active item: blinking blue while playing, steady yellow while paused.
+
+- Fixed track-switch UI sync: when switching to another track during playback, slider/timer seek state is reset and rebound to the new source immediately.
