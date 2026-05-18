@@ -108,3 +108,5 @@
 
 - [x] Fix: prevent stale duration/position values from previous source during track switch.
 - [x] UX: keep active slider visible even before duration arrives.
+
+- [x] Fix: track-by-track mode no longer auto-advances after manual stop/pause.

@@ -53,6 +53,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
   Duration _currentPosition = Duration.zero;
   Duration _currentDuration = Duration.zero;
   bool _isAudioRunning = false;
+  bool _suppressAutoAdvance = false;
   bool _isSeeking = false;
   double? _seekDragValueMillis;
   final Set<int> _downloadingIds = <int>{};
@@ -212,11 +213,13 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       }
 
       if (_loadedItemId == item.id && _audioPlayer.playing) {
+        _suppressAutoAdvance = true;
         await _audioPlayer.pause();
         return;
       }
 
       if (_loadedItemId == item.id && !_audioPlayer.playing) {
+        _suppressAutoAdvance = false;
         await _audioPlayer.play();
         if (mounted) {
           _activateItem(item.id);
@@ -250,6 +253,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       _loadedAudioUrl = loadedUrl;
       _loadedItemId = item.id;
       _currentDuration = _audioPlayer.duration ?? Duration.zero;
+      _suppressAutoAdvance = false;
       await _audioPlayer.setSpeed(_playbackSpeed);
       await _audioPlayer.play();
       if (mounted) {
@@ -333,7 +337,12 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
   }
 
   Future<void> _handleTrackCompleted() async {
-    if (_playMode != _playModeAll || _playingItemId == null) {
+    final durationMs = _audioPlayer.duration?.inMilliseconds ?? _currentDuration.inMilliseconds;
+    final positionMs = _audioPlayer.position.inMilliseconds;
+    final reachedNaturalEnd = durationMs > 0 && positionMs >= (durationMs - 900);
+
+    if (_suppressAutoAdvance || !reachedNaturalEnd || _playMode != _playModeAll || _playingItemId == null) {
+      _suppressAutoAdvance = false;
       if (mounted) {
         setState(() {
           _playingItemId = null;

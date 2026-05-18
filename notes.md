@@ -55,3 +55,5 @@
 - Clarified reset semantics: in project workflow, Flutter soft/hard reset is now handled by `scripts/flutter-reset.sh` (`r`/`R`), separate from git reset operations.
 
 - Added source-switch guard: stream updates are ignored while no loaded item is set, eliminating frozen/mismatched top-card timer artifacts.
+
+- Added completion guard: auto-advance now requires natural end threshold and is suppressed after user pause actions.
