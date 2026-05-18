@@ -194,6 +194,13 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
     }
 
     try {
+      if (mounted && _playingItemId != item.id) {
+        setState(() {
+          _playingItemId = item.id;
+          _currentPosition = Duration.zero;
+        });
+      }
+
       if (_loadedItemId == item.id && _audioPlayer.playing) {
         await _audioPlayer.pause();
         return;
@@ -384,10 +391,16 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
     if (_playingItemId == null || _loadedItemId != _playingItemId) return;
     try {
       final target = _seekDragValueMillis ?? value;
-      await _audioPlayer.seek(Duration(milliseconds: target.round()));
+      final targetDuration = Duration(milliseconds: target.round());
+      await _audioPlayer.seek(targetDuration);
+      await Future<void>.delayed(const Duration(milliseconds: 160));
+      final reached = (_audioPlayer.position - targetDuration).inMilliseconds.abs() < 1200;
+      if (!reached) {
+        await _seekWithReload(targetDuration);
+      }
       if (mounted) {
         setState(() {
-          _currentPosition = Duration(milliseconds: target.round());
+          _currentPosition = targetDuration;
         });
       }
     } catch (_) {
@@ -400,6 +413,24 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
         });
       }
     }
+  }
+
+  Future<void> _seekWithReload(Duration target) async {
+    if (_playingItemId == null) return;
+    QueueItem? playingItem;
+    for (final item in _items) {
+      if (item.id == _playingItemId) {
+        playingItem = item;
+        break;
+      }
+    }
+    if (playingItem == null) return;
+    final audioUrl = _audioUrlFor(playingItem);
+    if (audioUrl == null) return;
+    await _audioPlayer.setUrl(audioUrl, initialPosition: target);
+    _loadedItemId = playingItem.id;
+    await _audioPlayer.setSpeed(_playbackSpeed);
+    await _audioPlayer.play();
   }
 
   Future<void> _seekBySeconds(QueueItem item, int deltaSeconds) async {

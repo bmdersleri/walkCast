@@ -34,3 +34,5 @@
 - Fixed seek persistence bug: seeking within current track no longer falls back to the start on resume.
 
 - Added stable item keys in Flutter queue list to keep card/slider bindings correct during active-item reordering.
+
+- Added seek fallback strategy (reload with initialPosition) to handle non-ideal HTTP range behavior.

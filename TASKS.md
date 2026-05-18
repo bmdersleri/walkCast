@@ -77,3 +77,7 @@
 
 - [x] Fix: card tap now always plays selected item (prevents stale first-track playback).
 - [x] Fix: seek end now applies only to currently loaded item and persists position.
+
+- [x] Fix: active-card title/state now follows tapped track instantly.
+- [x] Fix: seek fallback reload added for servers not honoring range-seek consistently.
+- [x] UX: playing item cover rotation animation added.

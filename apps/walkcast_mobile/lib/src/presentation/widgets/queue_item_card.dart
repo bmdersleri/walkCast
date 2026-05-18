@@ -113,7 +113,7 @@ class QueueItemCard extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _coverTile(isDark, item.playlistLabel),
+                  _coverTile(isDark, item.playlistLabel, isPlaying, progress),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -279,7 +279,7 @@ class QueueItemCard extends StatelessWidget {
     );
   }
 
-  Widget _coverTile(bool isDark, String playlist) {
+  Widget _coverTile(bool isDark, String playlist, bool isPlaying, double progress) {
     final (icon, pair) = _playlistVisual(playlist);
 
     return Container(
@@ -290,12 +290,17 @@ class QueueItemCard extends StatelessWidget {
         gradient: LinearGradient(colors: [pair[0], pair[1]], begin: Alignment.topLeft, end: Alignment.bottomRight),
         border: Border.all(color: isDark ? const Color(0xFF506863) : const Color(0xFFD8E1DD)),
       ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Icon(icon, size: 24, color: const Color(0xFF1B3A34)),
-          const Positioned(top: 8, child: Icon(Icons.music_note_rounded, size: 12, color: Color(0xFF1B3A34))),
-        ],
+      child: AnimatedRotation(
+        turns: isPlaying ? progress * 6 : 0,
+        duration: const Duration(milliseconds: 280),
+        curve: Curves.linear,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Icon(icon, size: 24, color: const Color(0xFF1B3A34)),
+            const Positioned(top: 8, child: Icon(Icons.music_note_rounded, size: 12, color: Color(0xFF1B3A34))),
+          ],
+        ),
       ),
     );
   }
