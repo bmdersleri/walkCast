@@ -12,6 +12,7 @@ import '../../core/utils/download_helper.dart';
 import '../../domain/entities/queue_item.dart';
 import '../controllers/queue_controller.dart';
 import '../widgets/queue_item_card.dart';
+import 'settings_screen.dart';
 
 class QueueScreen extends ConsumerStatefulWidget {
   const QueueScreen({
@@ -510,6 +511,18 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       appBar: AppBar(
         title: Text(t('walkCast Queue', 'walkCast Liste')),
         actions: [
+          IconButton(
+            onPressed: () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => SettingsScreen(languageCode: widget.languageCode),
+                ),
+              );
+              await _refresh();
+            },
+            icon: const Icon(Icons.settings_rounded),
+            tooltip: t('Settings', 'Ayarlar'),
+          ),
           IconButton(
             onPressed: _refresh,
             icon: const Icon(Icons.refresh),

@@ -48,3 +48,5 @@
 - Added active playback LED state to queue card actions for immediate play/pause feedback.
 
 - Duration stream now accepts null->zero transition to avoid carrying stale duration to newly selected track.
+
+- Runtime API target is now user-configurable via Hive-backed settings (host + port), removing hard dependency on build-time dart-define for daily use.

@@ -98,3 +98,7 @@
 - [x] UX: active play control LED indicator (blue blink on play, yellow on pause).
 
 - [x] Fix: switching tracks now clears stale seek state and prevents frozen slider/counters.
+
+- [x] Feature: settings screen for server host and port.
+- [x] Feature: auto-save host/port changes.
+- [x] Refactor: API client now resolves base URL dynamically per request.

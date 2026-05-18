@@ -167,3 +167,6 @@ M1 target: Flutter MVP with parity for queue list, playback controls, delete con
 - Play button now includes LED status feedback on active item: blinking blue while playing, steady yellow while paused.
 
 - Fixed track-switch UI sync: when switching to another track during playback, slider/timer seek state is reset and rebound to the new source immediately.
+
+- Added mobile Settings screen to configure server host and port.
+- Host/port changes are auto-saved and runtime API base URL is rebuilt dynamically.

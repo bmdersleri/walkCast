@@ -8,7 +8,6 @@ class ItemsApiClient {
       : _dio = dio ??
             Dio(
               BaseOptions(
-                baseUrl: AppConfig.apiBaseUrl,
                 connectTimeout: const Duration(seconds: 8),
                 receiveTimeout: const Duration(seconds: 12),
               ),
@@ -17,7 +16,7 @@ class ItemsApiClient {
   final Dio _dio;
 
   Future<List<ItemDto>> listItems() async {
-    final response = await _dio.get<List<dynamic>>('/api/v1/items');
+    final response = await _dio.get<List<dynamic>>('${AppConfig.apiBaseUrl}/api/v1/items');
     final rows = response.data ?? <dynamic>[];
 
     return rows
