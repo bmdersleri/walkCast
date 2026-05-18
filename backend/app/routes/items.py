@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, Response
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from backend.app.db.database import get_db
@@ -9,6 +10,50 @@ from backend.app.schemas.items import ItemCreate, ItemCreateResponse, ItemUpdate
 from backend.app.workers.downloader import download_audio
 
 router = APIRouter(prefix="/api/v1/items", tags=["items"])
+
+
+def _parse_range_header(range_header: str, file_size: int) -> tuple[int, int] | None:
+    if not range_header.startswith("bytes="):
+        return None
+    range_value = range_header[6:].strip()
+    if "," in range_value:
+        return None
+
+    start_str, sep, end_str = range_value.partition("-")
+    if sep != "-":
+        return None
+
+    if start_str == "":
+        try:
+            suffix_length = int(end_str)
+        except ValueError:
+            return None
+        if suffix_length <= 0:
+            return None
+        start = max(file_size - suffix_length, 0)
+        end = file_size - 1
+        return (start, end)
+
+    try:
+        start = int(start_str)
+    except ValueError:
+        return None
+
+    if start < 0 or start >= file_size:
+        return None
+
+    if end_str == "":
+        end = file_size - 1
+    else:
+        try:
+            end = int(end_str)
+        except ValueError:
+            return None
+        if end < start:
+            return None
+        end = min(end, file_size - 1)
+
+    return (start, end)
 
 
 def _resolve_file_size(item: Item, db: Session) -> int | None:
@@ -114,3 +159,64 @@ def delete_item(item_id: int, db: Session = Depends(get_db)):
     db.delete(item)
     db.commit()
     return Response(status_code=204)
+
+
+@router.get("/{item_id}/audio")
+def stream_item_audio(item_id: int, request: Request, db: Session = Depends(get_db)):
+    item = db.get(Item, item_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    if not item.filepath:
+        raise HTTPException(status_code=404, detail="Audio file not found")
+
+    file_path = Path(item.filepath)
+    if not file_path.exists() or not file_path.is_file():
+        raise HTTPException(status_code=404, detail="Audio file not found")
+
+    file_size = file_path.stat().st_size
+    mime = "audio/mpeg"
+    range_header = request.headers.get("range")
+
+    headers = {
+        "Accept-Ranges": "bytes",
+        "Content-Type": mime,
+        "Cache-Control": "no-cache",
+    }
+
+    if not range_header:
+        return StreamingResponse(
+            file_path.open("rb"),
+            media_type=mime,
+            headers={**headers, "Content-Length": str(file_size)},
+            status_code=200,
+        )
+
+    range_values = _parse_range_header(range_header, file_size)
+    if range_values is None:
+        return Response(status_code=416, headers={**headers, "Content-Range": f"bytes */{file_size}"})
+
+    start, end = range_values
+    chunk_size = end - start + 1
+
+    def iter_file():
+        with file_path.open("rb") as fh:
+            fh.seek(start)
+            remaining = chunk_size
+            while remaining > 0:
+                read_size = min(64 * 1024, remaining)
+                data = fh.read(read_size)
+                if not data:
+                    break
+                remaining -= len(data)
+                yield data
+
+    return StreamingResponse(
+        iter_file(),
+        media_type=mime,
+        headers={
+            **headers,
+            "Content-Length": str(chunk_size),
+            "Content-Range": f"bytes {start}-{end}/{file_size}",
+        },
+        status_code=206,
+    )

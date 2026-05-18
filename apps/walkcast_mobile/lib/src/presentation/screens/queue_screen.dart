@@ -180,10 +180,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
   String? _audioUrlFor(QueueItem item) {
     final path = item.filepath;
     if (path == null || path.isEmpty) return null;
-    if (path.startsWith('http://') || path.startsWith('https://')) return path;
-
-    final fileName = path.split('/').last;
-    return '${AppConfig.apiBaseUrl}/backend/storage/audio/$fileName';
+    return '${AppConfig.apiBaseUrl}/api/v1/items/${item.id}/audio';
   }
 
   Future<void> _togglePlay(QueueItem item) async {
@@ -392,12 +389,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
     try {
       final target = _seekDragValueMillis ?? value;
       final targetDuration = Duration(milliseconds: target.round());
-      await _audioPlayer.seek(targetDuration);
-      await Future<void>.delayed(const Duration(milliseconds: 160));
-      final reached = (_audioPlayer.position - targetDuration).inMilliseconds.abs() < 1200;
-      if (!reached) {
-        await _seekWithReload(targetDuration);
-      }
+      await _seekToTarget(targetDuration);
       if (mounted) {
         setState(() {
           _currentPosition = targetDuration;
@@ -412,6 +404,15 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
           _seekDragValueMillis = null;
         });
       }
+    }
+  }
+
+  Future<void> _seekToTarget(Duration targetDuration) async {
+    await _audioPlayer.seek(targetDuration);
+    await Future<void>.delayed(const Duration(milliseconds: 160));
+    final reached = (_audioPlayer.position - targetDuration).inMilliseconds.abs() < 1200;
+    if (!reached) {
+      await _seekWithReload(targetDuration);
     }
   }
 
@@ -443,7 +444,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       final total = _audioPlayer.duration ?? _currentDuration;
       final targetMs = (current.inMilliseconds + deltaSeconds * 1000)
           .clamp(0, total.inMilliseconds > 0 ? total.inMilliseconds : current.inMilliseconds);
-      await _audioPlayer.seek(Duration(milliseconds: targetMs));
+      await _seekToTarget(Duration(milliseconds: targetMs));
     } catch (_) {
       _toast(t('Seek failed.', 'Ileri/geri sarma basarisiz.'));
     }

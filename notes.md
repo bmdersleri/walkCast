@@ -36,3 +36,5 @@
 - Added stable item keys in Flutter queue list to keep card/slider bindings correct during active-item reordering.
 
 - Added seek fallback strategy (reload with initialPosition) to handle non-ideal HTTP range behavior.
+
+- Root cause for seek drift was static-file playback inconsistency under some web/runtime combinations; fixed by item-scoped range endpoint + client fallback.

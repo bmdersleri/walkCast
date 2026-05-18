@@ -81,3 +81,8 @@
 - [x] Fix: active-card title/state now follows tapped track instantly.
 - [x] Fix: seek fallback reload added for servers not honoring range-seek consistently.
 - [x] UX: playing item cover rotation animation added.
+
+- [x] Backend: add item audio stream endpoint with Range support.
+- [x] Mobile: route playback through `/api/v1/items/{id}/audio`.
+- [x] Mobile: unify seek/ff/rewind with verified seek + reload fallback.
+- [x] Backend test: HTTP range response validation.

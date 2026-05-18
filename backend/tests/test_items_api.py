@@ -1,7 +1,10 @@
 from pathlib import Path
+from uuid import uuid4
 
 from fastapi.testclient import TestClient
 
+from backend.app.db.database import SessionLocal
+from backend.app.db.models import Item, ItemStatus
 from backend.app.main import app
 
 
@@ -32,3 +35,49 @@ def test_create_listen_delete_item_flow():
 
     fake_path = Path(f"backend/storage/audio/{item_id}.mp3")
     assert not fake_path.exists()
+
+
+def test_audio_stream_supports_http_range():
+    storage_dir = Path("backend/storage/audio")
+    storage_dir.mkdir(parents=True, exist_ok=True)
+    file_path = storage_dir / f"test-{uuid4().hex}.mp3"
+    content = b"abcdefghijklmnopqrstuvwxyz0123456789"
+    file_path.write_bytes(content)
+
+    db = SessionLocal()
+    item = Item(
+        playlist_id=1,
+        url="https://example.com/audio",
+        status=ItemStatus.ready,
+        filepath=str(file_path),
+        file_size_bytes=len(content),
+        audio_quality="medium",
+    )
+    db.add(item)
+    db.commit()
+    db.refresh(item)
+    item_id = item.id
+    db.close()
+
+    try:
+        full_resp = client.get(f"/api/v1/items/{item_id}/audio")
+        assert full_resp.status_code == 200
+        assert full_resp.headers.get("accept-ranges") == "bytes"
+        assert full_resp.content == content
+
+        part_resp = client.get(
+            f"/api/v1/items/{item_id}/audio",
+            headers={"Range": "bytes=5-9"},
+        )
+        assert part_resp.status_code == 206
+        assert part_resp.headers.get("content-range") == f"bytes 5-9/{len(content)}"
+        assert part_resp.content == content[5:10]
+    finally:
+        db = SessionLocal()
+        row = db.get(Item, item_id)
+        if row:
+            db.delete(row)
+            db.commit()
+        db.close()
+        if file_path.exists():
+            file_path.unlink()

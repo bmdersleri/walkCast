@@ -154,3 +154,6 @@ M1 target: Flutter MVP with parity for queue list, playback controls, delete con
 - Playback UI sync fix: active card title now switches immediately to tapped track before load completes.
 - Seek reliability improved with fallback reload at target position when remote seek is ignored.
 - Playing card cover now rotates to provide live playback animation feedback.
+
+- Added backend audio streaming endpoint with HTTP Range support: `GET /api/v1/items/{id}/audio` (206 partial content).
+- Mobile player now uses item-scoped audio endpoint for stable seek/skip behavior.
