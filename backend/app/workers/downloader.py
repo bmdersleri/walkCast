@@ -68,7 +68,10 @@ def download_audio(item_id: int, url: str) -> None:
             return
 
         ydl_opts = {
-            "format": "bestaudio/best",
+            # Prefer the smallest audio-only stream to reduce bandwidth/time.
+            # Fallbacks keep compatibility for providers that expose limited formats.
+            "format": "worstaudio/bestaudio/best",
+            "format_sort": ["+abr", "+asr", "+size", "+tbr"],
             "outtmpl": str(AUDIO_STORAGE_DIR / f"{item_id}.%(ext)s"),
             "postprocessors": [
                 {

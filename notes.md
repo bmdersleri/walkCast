@@ -77,3 +77,4 @@
 - Added strict auto-advance guards:
   - user-triggered pause/stop sets a short manual-stop guard window to suppress completion race auto-next
   - auto-next candidate list now excludes both server-listened and already-completed tracks
+- Downloader selection policy changed from best-audio-first to smallest-audio-first (`worstaudio` + sort by bitrate/size asc) to reduce ingest bandwidth and conversion latency.

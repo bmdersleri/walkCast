@@ -127,3 +127,4 @@
 - [x] Feature: playlist-level sequential bulk download with overall progress.
 - [x] Fix: manual pause/stop no longer triggers unintended auto-next.
 - [x] Fix: listened/finished tracks are excluded from auto-start continuation flow.
+- [x] Optimization: backend download pipeline now prefers smallest audio stream over highest-bitrate source.
