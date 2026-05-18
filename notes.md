@@ -44,3 +44,5 @@
 - Replaced visual-only top pinning with source-list promotion on play to prevent stale card title/progress rendering after reorder.
 
 - Hardened play mode parsing with explicit enum-like constants (`all` / `single`) and fallback to `single` for unknown stored values.
+
+- Added active playback LED state to queue card actions for immediate play/pause feedback.

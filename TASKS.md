@@ -94,3 +94,5 @@
 
 - [x] Fix: autoplay-next strictly gated by play mode = `all`.
 - [x] Default play mode changed to `track by track`.
+
+- [x] UX: active play control LED indicator (blue blink on play, yellow on pause).

@@ -19,7 +19,8 @@ class QueueItemCard extends StatelessWidget {
     required this.onFastForward,
     required this.onMarkListened,
     required this.onDeleteTrack,
-    required this.isPlaying,
+    required this.isActiveItem,
+    required this.isAudioRunning,
     required this.isOfflineSaved,
     required this.isZebraOdd,
     required this.languageCode,
@@ -44,7 +45,8 @@ class QueueItemCard extends StatelessWidget {
   final VoidCallback onFastForward;
   final VoidCallback onMarkListened;
   final VoidCallback onDeleteTrack;
-  final bool isPlaying;
+  final bool isActiveItem;
+  final bool isAudioRunning;
   final bool isOfflineSaved;
   final bool isZebraOdd;
   final String languageCode;
@@ -78,7 +80,7 @@ class QueueItemCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final statusColor = _statusColor(item.status, context);
     final listened = item.isListened;
-    final active = isPlaying;
+    final active = isActiveItem;
     final zebraA = isDark ? const Color(0xFF23353B) : const Color(0xFFFFF1F4);
     final zebraB = isDark ? const Color(0xFF233C33) : const Color(0xFFEFFAF4);
     final cardBorder = isDark ? const Color(0xFF3A5550) : const Color(0xFFD8E1DD);
@@ -113,7 +115,7 @@ class QueueItemCard extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _coverTile(isDark, item.playlistLabel, isPlaying, progress),
+                  _coverTile(isDark, item.playlistLabel, isAudioRunning, progress),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -127,7 +129,7 @@ class QueueItemCard extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               WaveformProgressBar(progress: progress, isDark: isDark),
-              if (isPlaying && totalDuration.inMilliseconds > 0) ...[
+              if (isActiveItem && totalDuration.inMilliseconds > 0) ...[
                 const SizedBox(height: 8),
                 SliderTheme(
                   data: SliderTheme.of(context).copyWith(
@@ -190,10 +192,11 @@ class QueueItemCard extends StatelessWidget {
                     children: [
                       _iconAction(
                         context,
-                        icon: isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                        icon: isAudioRunning ? Icons.pause_rounded : Icons.play_arrow_rounded,
                         onPressed: onPlay,
-                        tooltip: isPlaying ? (_isTr ? 'Duraklat' : 'Pause') : (_isTr ? 'Oynat' : 'Play'),
+                        tooltip: isAudioRunning ? (_isTr ? 'Duraklat' : 'Pause') : (_isTr ? 'Oynat' : 'Play'),
                         tint: const Color(0xFF0B8F7A),
+                        led: _buildLed(isAudioRunning: isAudioRunning, isActiveItem: isActiveItem),
                       ),
                       _iconAction(
                         context,
@@ -350,27 +353,63 @@ class QueueItemCard extends StatelessWidget {
     required VoidCallback onPressed,
     required String tooltip,
     Color? tint,
+    Widget? led,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Tooltip(
       message: tooltip,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          width: 34,
-          height: 34,
-          decoration: BoxDecoration(
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          InkWell(
+            onTap: onPressed,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: isDark ? const Color(0xFF3A5550) : const Color(0xFFD8E1DD)),
-            color: isDark ? const Color(0xFF1A2623) : const Color(0xFFF8FBFA),
+            child: Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: isDark ? const Color(0xFF3A5550) : const Color(0xFFD8E1DD)),
+                color: isDark ? const Color(0xFF1A2623) : const Color(0xFFF8FBFA),
+              ),
+              child: Icon(
+                icon,
+                size: 20,
+                color: tint ?? (isDark ? const Color(0xFFD7E8E2) : const Color(0xFF3C4A45)),
+              ),
+            ),
           ),
-          child: Icon(
-            icon,
-            size: 20,
-            color: tint ?? (isDark ? const Color(0xFFD7E8E2) : const Color(0xFF3C4A45)),
-          ),
-        ),
+          if (led != null) Positioned(right: -3, top: -3, child: led),
+        ],
+      ),
+    );
+  }
+
+  Widget? _buildLed({required bool isAudioRunning, required bool isActiveItem}) {
+    if (!isActiveItem) return null;
+    if (isAudioRunning) {
+      return StreamBuilder<int>(
+        stream: Stream<int>.periodic(const Duration(milliseconds: 420), (i) => i),
+        builder: (context, snapshot) {
+          final on = (snapshot.data ?? 0).isEven;
+          return Opacity(
+            opacity: on ? 1 : 0.25,
+            child: _ledDot(const Color(0xFF2D7EFF), glow: const Color(0xAA2D7EFF)),
+          );
+        },
+      );
+    }
+    return _ledDot(const Color(0xFFFFCC4D), glow: const Color(0x99FFCC4D));
+  }
+
+  Widget _ledDot(Color color, {required Color glow}) {
+    return Container(
+      width: 9,
+      height: 9,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        boxShadow: [BoxShadow(color: glow, blurRadius: 6, spreadRadius: 1)],
       ),
     );
   }

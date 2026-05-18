@@ -51,6 +51,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
   String _playMode = _playModeSingle;
   Duration _currentPosition = Duration.zero;
   Duration _currentDuration = Duration.zero;
+  bool _isAudioRunning = false;
   bool _isSeeking = false;
   double? _seekDragValueMillis;
   final Set<int> _downloadingIds = <int>{};
@@ -76,6 +77,11 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       _audioPlayer.setSpeed(_playbackSpeed);
     }
     _playerStateSub = _audioPlayer.playerStateStream.listen((state) {
+      if (mounted) {
+        setState(() {
+          _isAudioRunning = state.playing;
+        });
+      }
       if (state.processingState == ProcessingState.completed) {
         _handleTrackCompleted();
       }
@@ -549,7 +555,8 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
                   child: QueueItemCard(
                     key: ValueKey(item.id),
                     item: item,
-                    isPlaying: _playingItemId == item.id,
+                    isActiveItem: _playingItemId == item.id,
+                    isAudioRunning: _playingItemId == item.id && _isAudioRunning,
                     isOfflineSaved: _offlineSavedIds.contains(item.id),
                     isZebraOdd: (index - 1).isOdd,
                     languageCode: widget.languageCode,
