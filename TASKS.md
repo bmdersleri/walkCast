@@ -102,3 +102,5 @@
 - [x] Feature: settings screen for server host and port.
 - [x] Feature: auto-save host/port changes.
 - [x] Refactor: API client now resolves base URL dynamically per request.
+
+- [x] Tooling: add git reset helper script for soft/hard reset workflows.

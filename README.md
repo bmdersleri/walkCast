@@ -170,3 +170,20 @@ M1 target: Flutter MVP with parity for queue list, playback controls, delete con
 
 - Added mobile Settings screen to configure server host and port.
 - Host/port changes are auto-saved and runtime API base URL is rebuilt dynamically.
+
+## Git Reset Helper
+
+Use the reset helper script:
+
+```bash
+cd /home/haytekllm/projects/walkcast-clean
+./scripts/git-reset.sh soft
+./scripts/git-reset.sh hard
+```
+
+Optional target:
+
+```bash
+./scripts/git-reset.sh soft HEAD~1
+./scripts/git-reset.sh hard origin/main
+```
