@@ -86,3 +86,5 @@
 - [x] Mobile: route playback through `/api/v1/items/{id}/audio`.
 - [x] Mobile: unify seek/ff/rewind with verified seek + reload fallback.
 - [x] Backend test: HTTP range response validation.
+
+- [x] Compatibility fix: mobile player fallback URL chain for mixed backend deployments.

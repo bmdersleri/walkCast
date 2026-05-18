@@ -38,3 +38,5 @@
 - Added seek fallback strategy (reload with initialPosition) to handle non-ideal HTTP range behavior.
 
 - Root cause for seek drift was static-file playback inconsistency under some web/runtime combinations; fixed by item-scoped range endpoint + client fallback.
+
+- Added backward-compatible audio source fallback to avoid hard dependency on newly deployed stream endpoint.

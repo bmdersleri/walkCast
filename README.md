@@ -157,3 +157,5 @@ M1 target: Flutter MVP with parity for queue list, playback controls, delete con
 
 - Added backend audio streaming endpoint with HTTP Range support: `GET /api/v1/items/{id}/audio` (206 partial content).
 - Mobile player now uses item-scoped audio endpoint for stable seek/skip behavior.
+
+- Mobile playback now auto-falls back to static audio URL when item-stream endpoint is unavailable (prevents play failures during mixed backend versions).

@@ -41,6 +41,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
   bool _seededFromApi = false;
   int? _playingItemId;
   int? _loadedItemId;
+  String? _loadedAudioUrl;
   Set<int> _offlineSavedIds = <int>{};
   String _selectedPlaylist = 'All';
   double _playbackSpeed = 1.0;
@@ -170,6 +171,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
         await _audioPlayer.stop();
         _playingItemId = null;
         _loadedItemId = null;
+        _loadedAudioUrl = null;
       }
       await _refresh();
     } catch (_) {
@@ -177,15 +179,19 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
     }
   }
 
-  String? _audioUrlFor(QueueItem item) {
+  List<String> _audioUrlCandidates(QueueItem item) {
     final path = item.filepath;
-    if (path == null || path.isEmpty) return null;
-    return '${AppConfig.apiBaseUrl}/api/v1/items/${item.id}/audio';
+    if (path == null || path.isEmpty) return const <String>[];
+    final fileName = path.split('/').last;
+    return <String>[
+      '${AppConfig.apiBaseUrl}/api/v1/items/${item.id}/audio',
+      '${AppConfig.apiBaseUrl}/backend/storage/audio/$fileName',
+    ];
   }
 
   Future<void> _togglePlay(QueueItem item) async {
-    final audioUrl = _audioUrlFor(item);
-    if (audioUrl == null) {
+    final candidates = _audioUrlCandidates(item);
+    if (candidates.isEmpty) {
       _snack(t('Audio file is not ready yet.', 'Ses dosyasi henuz hazir degil.'));
       return;
     }
@@ -214,7 +220,21 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       }
 
       await _audioPlayer.stop();
-      await _audioPlayer.setUrl(audioUrl);
+      String? loadedUrl;
+      Object? lastErr;
+      for (final url in candidates) {
+        try {
+          await _audioPlayer.setUrl(url);
+          loadedUrl = url;
+          break;
+        } catch (err) {
+          lastErr = err;
+        }
+      }
+      if (loadedUrl == null) {
+        throw lastErr ?? Exception('No playable source');
+      }
+      _loadedAudioUrl = loadedUrl;
       _loadedItemId = item.id;
       await _audioPlayer.setSpeed(_playbackSpeed);
       await _audioPlayer.play();
@@ -236,11 +256,12 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
   }
 
   Future<void> _download(QueueItem item) async {
-    final audioUrl = _audioUrlFor(item);
-    if (audioUrl == null) {
+    final candidates = _audioUrlCandidates(item);
+    if (candidates.isEmpty) {
       _snack(t('Audio file is not ready for download.', 'Ses dosyasi indirilmeye hazir degil.'));
       return;
     }
+    final audioUrl = candidates.first;
     final safeTitle = (item.title ?? 'track_${item.id}')
         .replaceAll(RegExp(r'[^a-zA-Z0-9_-]+'), '_')
         .replaceAll(RegExp('_+'), '_');
@@ -305,6 +326,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
         setState(() {
           _playingItemId = null;
           _loadedItemId = null;
+          _loadedAudioUrl = null;
         });
       }
       return;
@@ -318,6 +340,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
         setState(() {
           _playingItemId = null;
           _loadedItemId = null;
+          _loadedAudioUrl = null;
         });
       }
       return;
@@ -426,9 +449,9 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       }
     }
     if (playingItem == null) return;
-    final audioUrl = _audioUrlFor(playingItem);
-    if (audioUrl == null) return;
-    await _audioPlayer.setUrl(audioUrl, initialPosition: target);
+    final fallbackUrl = _loadedAudioUrl;
+    if (fallbackUrl == null) return;
+    await _audioPlayer.setUrl(fallbackUrl, initialPosition: target);
     _loadedItemId = playingItem.id;
     await _audioPlayer.setSpeed(_playbackSpeed);
     await _audioPlayer.play();
