@@ -61,3 +61,5 @@
 - Added render-level active pinning in `_visibleItems()` to prevent stale previous-title top-card scenarios.
 
 - Added `_allowAutoAdvance` runtime gate to eliminate accidental next-track transitions when mode is `single`.
+
+- Introduced `_sequenceItems()` (canonical order) vs `_visibleItems()` (UI-pinned order) split to prevent next-track regression.

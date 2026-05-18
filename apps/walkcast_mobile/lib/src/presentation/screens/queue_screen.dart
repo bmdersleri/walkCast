@@ -359,8 +359,8 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       return;
     }
 
-    final visibleItems = _visibleItems();
-    final ready = visibleItems.where((i) => i.isReady).toList(growable: false);
+    final sequenceItems = _sequenceItems();
+    final ready = sequenceItems.where((i) => i.isReady).toList(growable: false);
     final currentIndex = ready.indexWhere((i) => i.id == _playingItemId);
     if (currentIndex == -1 || currentIndex + 1 >= ready.length) {
       if (mounted) {
@@ -375,10 +375,14 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
     await _togglePlay(ready[currentIndex + 1]);
   }
 
-  List<QueueItem> _visibleItems() {
-    final base = _selectedPlaylist == 'All'
+  List<QueueItem> _sequenceItems() {
+    return _selectedPlaylist == 'All'
         ? List<QueueItem>.from(_items)
         : _items.where((item) => item.playlistLabel == _selectedPlaylist).toList(growable: true);
+  }
+
+  List<QueueItem> _visibleItems() {
+    final base = _sequenceItems();
     if (_playingItemId == null) {
       return base;
     }
@@ -396,11 +400,6 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       if (resetPosition) {
         _currentPosition = Duration.zero;
         _currentDuration = Duration.zero;
-      }
-      final idx = _items.indexWhere((item) => item.id == itemId);
-      if (idx > 0) {
-        final active = _items.removeAt(idx);
-        _items.insert(0, active);
       }
     });
   }
