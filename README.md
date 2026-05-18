@@ -148,6 +148,9 @@ M1 target: Flutter MVP with parity for queue list, playback controls, delete con
   - `Download playlist` action in top controls
   - sequential track-by-track download queue with live overall progress (`done/total`)
 - Offline cache is now persisted in Hive (`walkcast_audio_cache`) and linked to existing offline-saved state.
+- Auto-next safeguards improved:
+  - manual pause/stop now blocks unintended next-track autoplay
+  - in `play all`, already-listened and already-finished tracks are skipped from automatic continuation
 
 - Fixed playback resume/seek continuity bug:
   - pressing play again on a paused track now resumes from the same position

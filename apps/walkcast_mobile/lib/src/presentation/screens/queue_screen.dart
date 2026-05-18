@@ -78,12 +78,14 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
   bool _isAudioRunning = false;
   bool _suppressAutoAdvance = false;
   bool _allowAutoAdvance = false;
+  DateTime? _manualStopAt;
   bool _isSeeking = false;
   double? _seekDragValueMillis;
   final Set<int> _downloadingIds = <int>{};
   final Map<int, double> _downloadProgressById = <int, double>{};
   final Map<int, int> _downloadEtaSecsById = <int, int>{};
   final Map<int, DateTime> _downloadStartById = <int, DateTime>{};
+  final Set<int> _completedTrackIds = <int>{};
   bool _bulkDownloading = false;
   int _bulkTotal = 0;
   int _bulkDone = 0;
@@ -247,6 +249,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       if (_loadedItemId == item.id && _audioPlayer.playing) {
         _suppressAutoAdvance = true;
         _allowAutoAdvance = false;
+        _manualStopAt = DateTime.now();
         await _audioPlayer.pause();
         return;
       }
@@ -254,6 +257,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       if (_loadedItemId == item.id && !_audioPlayer.playing) {
         _suppressAutoAdvance = false;
         _allowAutoAdvance = (_playMode == _playModeAll);
+        _manualStopAt = null;
         await _audioPlayer.play();
         if (mounted) {
           _activateItem(item.id);
@@ -301,6 +305,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       _currentDuration = _audioPlayer.duration ?? Duration.zero;
       _suppressAutoAdvance = false;
       _allowAutoAdvance = (_playMode == _playModeAll);
+      _manualStopAt = null;
       await _audioPlayer.setSpeed(_playbackSpeed);
       await _audioPlayer.play();
       if (mounted) {
@@ -434,24 +439,30 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
     final durationMs = _audioPlayer.duration?.inMilliseconds ?? _currentDuration.inMilliseconds;
     final positionMs = _audioPlayer.position.inMilliseconds;
     final reachedNaturalEnd = durationMs > 0 && positionMs >= (durationMs - 900);
+    final pausedRecentlyByUser = _manualStopAt != null &&
+        DateTime.now().difference(_manualStopAt!).inMilliseconds < 1800;
+    final completedId = _playingItemId;
 
-    if (_suppressAutoAdvance || !_allowAutoAdvance || !reachedNaturalEnd || _playMode != _playModeAll || _playingItemId == null) {
+    if (_suppressAutoAdvance ||
+        pausedRecentlyByUser ||
+        !_allowAutoAdvance ||
+        !reachedNaturalEnd ||
+        _playMode != _playModeAll ||
+        completedId == null) {
       _suppressAutoAdvance = false;
       _allowAutoAdvance = false;
-      if (mounted) {
-        setState(() {
-          _playingItemId = null;
-          _loadedItemId = null;
-          _loadedAudioUrl = null;
-        });
-      }
+      _manualStopAt = null;
       return;
     }
 
+    _completedTrackIds.add(completedId);
     final sequenceItems = _sequenceItems();
-    final ready = sequenceItems.where((i) => i.isReady).toList(growable: false);
-    final currentIndex = ready.indexWhere((i) => i.id == _playingItemId);
+    final ready = sequenceItems
+        .where((i) => i.isReady && !i.isListened && !_completedTrackIds.contains(i.id))
+        .toList(growable: false);
+    final currentIndex = ready.indexWhere((i) => i.id == completedId);
     if (currentIndex == -1 || currentIndex + 1 >= ready.length) {
+      _allowAutoAdvance = false;
       if (mounted) {
         setState(() {
           _playingItemId = null;
@@ -536,9 +547,11 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
     if (mode != _playModeAll) {
       _allowAutoAdvance = false;
       _suppressAutoAdvance = true;
+      _manualStopAt = DateTime.now();
     } else {
       _suppressAutoAdvance = false;
       _allowAutoAdvance = _isAudioRunning;
+      _manualStopAt = null;
     }
     _prefs?.put('play_mode', mode);
   }

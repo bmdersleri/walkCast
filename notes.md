@@ -74,3 +74,6 @@
   - live per-item progress
   - ETA derived from measured transfer speed
   - playlist-wide sequential download queue progress in top panel
+- Added strict auto-advance guards:
+  - user-triggered pause/stop sets a short manual-stop guard window to suppress completion race auto-next
+  - auto-next candidate list now excludes both server-listened and already-completed tracks

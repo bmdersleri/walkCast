@@ -125,3 +125,5 @@
 - [x] Feature: local-first + auto-download-on-play behavior.
 - [x] Feature: per-track download progress + ETA on cards.
 - [x] Feature: playlist-level sequential bulk download with overall progress.
+- [x] Fix: manual pause/stop no longer triggers unintended auto-next.
+- [x] Fix: listened/finished tracks are excluded from auto-start continuation flow.
