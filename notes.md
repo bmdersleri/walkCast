@@ -59,3 +59,5 @@
 - Added completion guard: auto-advance now requires natural end threshold and is suppressed after user pause actions.
 
 - Added render-level active pinning in `_visibleItems()` to prevent stale previous-title top-card scenarios.
+
+- Added `_allowAutoAdvance` runtime gate to eliminate accidental next-track transitions when mode is `single`.

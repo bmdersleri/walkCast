@@ -54,6 +54,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
   Duration _currentDuration = Duration.zero;
   bool _isAudioRunning = false;
   bool _suppressAutoAdvance = false;
+  bool _allowAutoAdvance = false;
   bool _isSeeking = false;
   double? _seekDragValueMillis;
   final Set<int> _downloadingIds = <int>{};
@@ -214,12 +215,14 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
 
       if (_loadedItemId == item.id && _audioPlayer.playing) {
         _suppressAutoAdvance = true;
+        _allowAutoAdvance = false;
         await _audioPlayer.pause();
         return;
       }
 
       if (_loadedItemId == item.id && !_audioPlayer.playing) {
         _suppressAutoAdvance = false;
+        _allowAutoAdvance = (_playMode == _playModeAll);
         await _audioPlayer.play();
         if (mounted) {
           _activateItem(item.id);
@@ -254,12 +257,14 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       _loadedItemId = item.id;
       _currentDuration = _audioPlayer.duration ?? Duration.zero;
       _suppressAutoAdvance = false;
+      _allowAutoAdvance = (_playMode == _playModeAll);
       await _audioPlayer.setSpeed(_playbackSpeed);
       await _audioPlayer.play();
       if (mounted) {
         _activateItem(item.id);
       }
     } catch (_) {
+      _allowAutoAdvance = false;
       if (mounted) {
         setState(() {
           if (_playingItemId == item.id) {
@@ -341,8 +346,9 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
     final positionMs = _audioPlayer.position.inMilliseconds;
     final reachedNaturalEnd = durationMs > 0 && positionMs >= (durationMs - 900);
 
-    if (_suppressAutoAdvance || !reachedNaturalEnd || _playMode != _playModeAll || _playingItemId == null) {
+    if (_suppressAutoAdvance || !_allowAutoAdvance || !reachedNaturalEnd || _playMode != _playModeAll || _playingItemId == null) {
       _suppressAutoAdvance = false;
+      _allowAutoAdvance = false;
       if (mounted) {
         setState(() {
           _playingItemId = null;
@@ -439,6 +445,13 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
     setState(() {
       _playMode = mode;
     });
+    if (mode != _playModeAll) {
+      _allowAutoAdvance = false;
+      _suppressAutoAdvance = true;
+    } else {
+      _suppressAutoAdvance = false;
+      _allowAutoAdvance = _isAudioRunning;
+    }
     _prefs?.put('play_mode', mode);
   }
 

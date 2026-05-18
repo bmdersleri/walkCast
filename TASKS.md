@@ -112,3 +112,5 @@
 - [x] Fix: track-by-track mode no longer auto-advances after manual stop/pause.
 
 - [x] Fix: top card title now forced to active playing item via visible-list pinning.
+
+- [x] Fix: hard-lock auto-next off in track-by-track mode via explicit runtime guard flags.
