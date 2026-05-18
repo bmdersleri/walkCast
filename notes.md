@@ -29,3 +29,6 @@
 2. Expand widget tests for playback state transitions and seek persistence.
 3. Add integration test for mobile queue ordering (active item pinned on top).
 4. Keep PWA/extension behavior aligned with Flutter UX decisions.
+
+- Fixed mobile playback selection bug: tapping a track now starts that exact track and pins it to top immediately.
+- Fixed seek persistence bug: seeking within current track no longer falls back to the start on resume.

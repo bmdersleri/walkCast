@@ -71,3 +71,6 @@
 
 - [x] Remove tracked runtime artifacts (`venv/`, `.run/`) from git history tip.
 - [x] Enforce ignore rules for local/runtime directories in `.gitignore`.
+
+- [x] Fix: selected track play action now starts the tapped item (not first queue item).
+- [x] Fix: seek-to-position now resumes from selected position reliably.

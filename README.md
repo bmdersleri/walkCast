@@ -146,3 +146,5 @@ M1 target: Flutter MVP with parity for queue list, playback controls, delete con
 - Validation:
   - `flutter analyze` passed
   - `flutter test` passed
+
+- Bugfix: Mobile player now tracks loaded item identity to avoid wrong-track autoplay and unwanted reset after seek.

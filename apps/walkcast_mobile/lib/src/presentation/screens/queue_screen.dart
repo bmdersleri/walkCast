@@ -40,6 +40,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
   List<QueueItem> _items = <QueueItem>[];
   bool _seededFromApi = false;
   int? _playingItemId;
+  int? _loadedItemId;
   Set<int> _offlineSavedIds = <int>{};
   String _selectedPlaylist = 'All';
   double _playbackSpeed = 1.0;
@@ -168,6 +169,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       if (_playingItemId == item.id) {
         await _audioPlayer.stop();
         _playingItemId = null;
+        _loadedItemId = null;
       }
       await _refresh();
     } catch (_) {
@@ -197,20 +199,29 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
         return;
       }
 
-      if (_playingItemId == item.id && !_audioPlayer.playing) {
+      if (_playingItemId == item.id && _loadedItemId == item.id && !_audioPlayer.playing) {
         await _audioPlayer.play();
         return;
       }
 
-      await _audioPlayer.setUrl(audioUrl);
-      await _audioPlayer.setSpeed(_playbackSpeed);
-      await _audioPlayer.play();
       if (mounted) {
         setState(() {
           _playingItemId = item.id;
         });
       }
+
+      await _audioPlayer.setUrl(audioUrl);
+      _loadedItemId = item.id;
+      await _audioPlayer.setSpeed(_playbackSpeed);
+      await _audioPlayer.play();
     } catch (_) {
+      if (mounted) {
+        setState(() {
+          if (_playingItemId == item.id) {
+            _playingItemId = null;
+          }
+        });
+      }
       _snack(t('Could not play this track.', 'Bu parca oynatilamadi.'));
     }
   }
@@ -281,7 +292,12 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
 
   Future<void> _handleTrackCompleted() async {
     if (_playMode != 'all' || _playingItemId == null) {
-      if (mounted) setState(() => _playingItemId = null);
+      if (mounted) {
+        setState(() {
+          _playingItemId = null;
+          _loadedItemId = null;
+        });
+      }
       return;
     }
 
@@ -289,7 +305,12 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
     final ready = visibleItems.where((i) => i.isReady).toList(growable: false);
     final currentIndex = ready.indexWhere((i) => i.id == _playingItemId);
     if (currentIndex == -1 || currentIndex + 1 >= ready.length) {
-      if (mounted) setState(() => _playingItemId = null);
+      if (mounted) {
+        setState(() {
+          _playingItemId = null;
+          _loadedItemId = null;
+        });
+      }
       return;
     }
     await _togglePlay(ready[currentIndex + 1]);
@@ -355,6 +376,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
   }
 
   Future<void> _onSeekEnd(double value) async {
+    if (_playingItemId == null) return;
     try {
       final target = _seekDragValueMillis ?? value;
       await _audioPlayer.seek(Duration(milliseconds: target.round()));
