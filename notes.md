@@ -53,3 +53,5 @@
 
 - Added `scripts/git-reset.sh` for consistent local soft/hard reset operations with a default target (`origin/main`).
 - Clarified reset semantics: in project workflow, Flutter soft/hard reset is now handled by `scripts/flutter-reset.sh` (`r`/`R`), separate from git reset operations.
+
+- Added source-switch guard: stream updates are ignored while no loaded item is set, eliminating frozen/mismatched top-card timer artifacts.

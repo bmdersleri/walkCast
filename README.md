@@ -200,3 +200,6 @@ cd /home/haytekllm/projects/walkcast-clean
 ./scripts/flutter-reset.sh status
 ./scripts/flutter-reset.sh stop
 ```
+
+- Fixed active top-card stale metadata issue on track switch by clearing loaded-source state before new source load and ignoring position/duration updates when no source is loaded.
+- Active track slider now stays visible while duration is loading (disabled until duration is known).

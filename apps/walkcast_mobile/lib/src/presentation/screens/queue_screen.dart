@@ -90,12 +90,14 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
     _audioPlayer.positionStream.listen((pos) {
       if (!mounted) return;
       if (_isSeeking) return;
+      if (_loadedItemId == null) return;
       setState(() {
         _currentPosition = pos;
       });
     });
     _audioPlayer.durationStream.listen((dur) {
       if (!mounted) return;
+      if (_loadedItemId == null) return;
       setState(() {
         _currentDuration = dur ?? Duration.zero;
       });
@@ -223,6 +225,13 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       }
 
       await _audioPlayer.stop();
+      if (mounted) {
+        setState(() {
+          _loadedItemId = null;
+          _loadedAudioUrl = null;
+          _isAudioRunning = false;
+        });
+      }
       _resetSeekState();
       String? loadedUrl;
       Object? lastErr;
@@ -240,6 +249,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       }
       _loadedAudioUrl = loadedUrl;
       _loadedItemId = item.id;
+      _currentDuration = _audioPlayer.duration ?? Duration.zero;
       await _audioPlayer.setSpeed(_playbackSpeed);
       await _audioPlayer.play();
       if (mounted) {

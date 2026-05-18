@@ -129,7 +129,7 @@ class QueueItemCard extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               WaveformProgressBar(progress: progress, isDark: isDark),
-              if (isActiveItem && totalDuration.inMilliseconds > 0) ...[
+              if (isActiveItem) ...[
                 const SizedBox(height: 8),
                 SliderTheme(
                   data: SliderTheme.of(context).copyWith(
@@ -138,11 +138,11 @@ class QueueItemCard extends StatelessWidget {
                   ),
                   child: Slider(
                     min: 0,
-                    max: totalDuration.inMilliseconds.toDouble(),
-                    value: currentPosition.inMilliseconds.clamp(0, totalDuration.inMilliseconds).toDouble(),
+                    max: max(1, totalDuration.inMilliseconds).toDouble(),
+                    value: currentPosition.inMilliseconds.clamp(0, max(1, totalDuration.inMilliseconds)).toDouble(),
                     onChangeStart: onSeekStart,
-                    onChanged: onSeek,
-                    onChangeEnd: onSeekEnd,
+                    onChanged: totalDuration.inMilliseconds > 0 ? onSeek : null,
+                    onChangeEnd: totalDuration.inMilliseconds > 0 ? onSeekEnd : null,
                   ),
                 ),
                 Row(

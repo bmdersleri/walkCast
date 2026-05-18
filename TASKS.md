@@ -105,3 +105,6 @@
 
 - [x] Tooling: add git reset helper script for soft/hard reset workflows.
 - [x] Tooling: add Flutter reset helper script (`soft` hot reload, `hard` hot restart).
+
+- [x] Fix: prevent stale duration/position values from previous source during track switch.
+- [x] UX: keep active slider visible even before duration arrives.
