@@ -194,11 +194,11 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
     try {
       if (_playingItemId == item.id && _audioPlayer.playing) {
         await _audioPlayer.pause();
-        if (mounted) {
-          setState(() {
-            _playingItemId = null;
-          });
-        }
+        return;
+      }
+
+      if (_playingItemId == item.id && !_audioPlayer.playing) {
+        await _audioPlayer.play();
         return;
       }
 
@@ -285,9 +285,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       return;
     }
 
-    final visibleItems = _selectedPlaylist == 'All'
-        ? _items
-        : _items.where((item) => item.playlistLabel == _selectedPlaylist).toList(growable: false);
+    final visibleItems = _visibleItems();
     final ready = visibleItems.where((i) => i.isReady).toList(growable: false);
     final currentIndex = ready.indexWhere((i) => i.id == _playingItemId);
     if (currentIndex == -1 || currentIndex + 1 >= ready.length) {
@@ -295,6 +293,18 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
       return;
     }
     await _togglePlay(ready[currentIndex + 1]);
+  }
+
+  List<QueueItem> _visibleItems() {
+    final base = _selectedPlaylist == 'All'
+        ? List<QueueItem>.from(_items)
+        : _items.where((item) => item.playlistLabel == _selectedPlaylist).toList(growable: true);
+    if (_playingItemId == null) return base;
+    final idx = base.indexWhere((item) => item.id == _playingItemId);
+    if (idx <= 0) return base;
+    final playing = base.removeAt(idx);
+    base.insert(0, playing);
+    return base;
   }
 
   void _moveUp(int index) {
@@ -425,9 +435,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
             }
 
             final allPlaylistNames = <String>{'All'}..addAll(_items.map((e) => e.playlistLabel));
-            final visibleItems = _selectedPlaylist == 'All'
-                ? _items
-                : _items.where((item) => item.playlistLabel == _selectedPlaylist).toList(growable: false);
+            final visibleItems = _visibleItems();
 
             if (visibleItems.isEmpty) {
               return ListView(

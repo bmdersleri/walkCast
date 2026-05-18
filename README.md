@@ -135,3 +135,14 @@ pytest -q backend/tests/test_items_api.py
 ## Next Delivery Milestone
 
 M1 target: Flutter MVP with parity for queue list, playback controls, delete confirmation, and offline save/play on Android.
+
+## Latest Update (2026-05-18)
+
+- Fixed playback resume/seek continuity bug:
+  - pressing play again on a paused track now resumes from the same position
+  - seek slider no longer resets playback to start on play/pause transitions
+- Active playing item is pinned to top of the visible playlist in mobile UI.
+- Now shows elapsed and remaining time together while a track is playing.
+- Validation:
+  - `flutter analyze` passed
+  - `flutter test` passed

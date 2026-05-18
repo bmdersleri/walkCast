@@ -147,7 +147,10 @@ class QueueItemCard extends StatelessWidget {
                   children: [
                     Text(_fmtDuration(currentPosition), style: TextStyle(fontSize: 11, color: baseText.withValues(alpha: 0.8))),
                     const Spacer(),
-                    Text(_fmtDuration(totalDuration), style: TextStyle(fontSize: 11, color: baseText.withValues(alpha: 0.8))),
+                    Text(
+                      '-${_fmtDuration(Duration(milliseconds: max(0, (totalDuration - currentPosition).inMilliseconds)))}',
+                      style: TextStyle(fontSize: 11, color: baseText.withValues(alpha: 0.8)),
+                    ),
                   ],
                 ),
               ],

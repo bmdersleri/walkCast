@@ -9,24 +9,24 @@
 
 ## Phase B — Flutter Project Bootstrap
 
-- [ ] Create `apps/walkcast_mobile` with flavor-ready structure
-- [ ] Add dependencies (`riverpod`, `dio`, `just_audio`, `audio_service`, `isar/hive`, `path_provider`)
-- [ ] Setup linting, formatting, and CI test command
-- [ ] Configure environment handling for API base URL
+- [x] Create `apps/walkcast_mobile` with flavor-ready structure
+- [x] Add dependencies (`riverpod`, `dio`, `just_audio`, `audio_service`, `isar/hive`, `path_provider`)
+- [x] Setup linting, formatting, and CI test command
+- [x] Configure environment handling for API base URL
 
 ## Phase C — Data and Domain Layer
 
-- [ ] Implement API client and typed DTO models
-- [ ] Build repository layer with error mapping
-- [ ] Add polling strategy for item status updates
-- [ ] Implement local storage schema for offline files and preferences
+- [x] Implement API client and typed DTO models
+- [x] Build repository layer with error mapping
+- [x] Add polling strategy for item status updates
+- [x] Implement local storage schema for offline files and preferences
 
 ## Phase D — Core UI and Playback
 
-- [ ] Build queue list screen with card states (status/size/progress/ETA)
-- [ ] Build add URL flow with playlist + quality controls
-- [ ] Build player controls (play/pause, speed, autoplay-next)
-- [ ] Handle listen-complete event and backend sync
+- [x] Build queue list screen with card states (status/size/progress/ETA)
+- [x] Build add URL flow with playlist + quality controls
+- [x] Build player controls (play/pause, speed, autoplay-next)
+- [x] Handle listen-complete event and backend sync
 
 ## Phase E — Offline and Playlist Management
 
@@ -53,13 +53,19 @@
 
 ## Immediate Next 7 Tasks
 
-- [ ] Create Flutter app skeleton and baseline folders
-- [ ] Add API model for item including quality/size/progress fields
-- [ ] Build queue screen static prototype from current design language
-- [ ] Wire list fetch from backend and render live cards
-- [ ] Implement quality radio selector on add URL form
-- [ ] Implement offline save state toggle in UI
-- [ ] Add first widget test for card state rendering
+- [x] Create Flutter app skeleton and baseline folders
+- [x] Add API model for item including quality/size/progress fields
+- [x] Build queue screen static prototype from current design language
+- [x] Wire list fetch from backend and render live cards
+- [x] Implement quality radio selector on add URL form
+- [x] Implement offline save state toggle in UI
+- [x] Add first widget test for card state rendering
+
+## Recent Fixes
+
+- [x] Keep active playing item at top of visible playlist.
+- [x] Preserve track position across play/pause for same item.
+- [x] Show elapsed and remaining time during playback.
 
 ## Maintenance
 

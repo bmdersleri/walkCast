@@ -7,6 +7,8 @@
 - Backend stays source of truth for remote queue and conversion statuses.
 - Audio quality options are standardized as `good`, `medium`, `high`.
 - Repository hygiene is strict: local runtime artifacts (`venv/`, `.run/`) stay untracked.
+- Playback continuity is mandatory: seek and pause/resume must continue from current position.
+- Active playing item should be visually and positionally prioritized in list rendering.
 
 ## Technical Direction
 
@@ -23,7 +25,7 @@
 
 ## Near-Term Priorities
 
-1. Bootstrap Flutter app structure.
-2. Implement typed API + queue list rendering.
-3. Implement offline save/play with clear visual states.
-4. Add widget and integration test baseline.
+1. Add playlist-level play actions (`play all`, `track by track`) and verify completion flow.
+2. Expand widget tests for playback state transitions and seek persistence.
+3. Add integration test for mobile queue ordering (active item pinned on top).
+4. Keep PWA/extension behavior aligned with Flutter UX decisions.
