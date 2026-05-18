@@ -187,3 +187,16 @@ Optional target:
 ./scripts/git-reset.sh soft HEAD~1
 ./scripts/git-reset.sh hard origin/main
 ```
+
+## Flutter Reset Helper
+
+Use this script for Flutter reset operations (not git reset):
+
+```bash
+cd /home/haytekllm/projects/walkcast-clean
+./scripts/flutter-reset.sh start
+./scripts/flutter-reset.sh soft   # hot reload
+./scripts/flutter-reset.sh hard   # hot restart
+./scripts/flutter-reset.sh status
+./scripts/flutter-reset.sh stop
+```

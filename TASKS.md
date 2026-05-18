@@ -104,3 +104,4 @@
 - [x] Refactor: API client now resolves base URL dynamically per request.
 
 - [x] Tooling: add git reset helper script for soft/hard reset workflows.
+- [x] Tooling: add Flutter reset helper script (`soft` hot reload, `hard` hot restart).

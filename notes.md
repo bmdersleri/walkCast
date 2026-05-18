@@ -52,3 +52,4 @@
 - Runtime API target is now user-configurable via Hive-backed settings (host + port), removing hard dependency on build-time dart-define for daily use.
 
 - Added `scripts/git-reset.sh` for consistent local soft/hard reset operations with a default target (`origin/main`).
+- Clarified reset semantics: in project workflow, Flutter soft/hard reset is now handled by `scripts/flutter-reset.sh` (`r`/`R`), separate from git reset operations.
