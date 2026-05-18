@@ -139,6 +139,7 @@ M1 target: Flutter MVP with parity for queue list, playback controls, delete con
 ## Latest Update (2026-05-18)
 
 - Backend downloader is now optimized for lower data usage during URL ingestion:
+  - YouTube ingestion now enforces direct audio-only stream download (`vcodec=none`, `acodec!=none`) before MP3 conversion
   - audio pipeline prefers smallest audio-only stream first (`worstaudio`)
   - fallback chain remains enabled for provider compatibility
   - this avoids pulling unnecessarily high-bitrate streams before MP3 conversion

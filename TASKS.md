@@ -128,3 +128,4 @@
 - [x] Fix: manual pause/stop no longer triggers unintended auto-next.
 - [x] Fix: listened/finished tracks are excluded from auto-start continuation flow.
 - [x] Optimization: backend download pipeline now prefers smallest audio stream over highest-bitrate source.
+- [x] Optimization: enforce strict audio-only stream selection (no video stream fallback) before MP3 conversion.
