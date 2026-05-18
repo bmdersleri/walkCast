@@ -32,6 +32,9 @@ class QueueScreen extends ConsumerStatefulWidget {
 }
 
 class _QueueScreenState extends ConsumerState<QueueScreen> {
+  static const String _playModeAll = 'all';
+  static const String _playModeSingle = 'single';
+
   final AudioPlayer _audioPlayer = AudioPlayer();
   Box? _prefs;
   final Dio _dio = Dio();
@@ -45,7 +48,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
   Set<int> _offlineSavedIds = <int>{};
   String _selectedPlaylist = 'All';
   double _playbackSpeed = 1.0;
-  String _playMode = 'all';
+  String _playMode = _playModeSingle;
   Duration _currentPosition = Duration.zero;
   Duration _currentDuration = Duration.zero;
   bool _isSeeking = false;
@@ -66,7 +69,10 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
           .toSet();
       _offlineSavedIds = saved;
       _playbackSpeed = (_prefs!.get('playback_speed', defaultValue: 1.0) as num).toDouble();
-      _playMode = _prefs!.get('play_mode', defaultValue: 'all') as String;
+      _playMode = _prefs!.get('play_mode', defaultValue: _playModeSingle) as String;
+      if (_playMode != _playModeAll && _playMode != _playModeSingle) {
+        _playMode = _playModeSingle;
+      }
       _audioPlayer.setSpeed(_playbackSpeed);
     }
     _playerStateSub = _audioPlayer.playerStateStream.listen((state) {
@@ -308,7 +314,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
   }
 
   Future<void> _handleTrackCompleted() async {
-    if (_playMode != 'all' || _playingItemId == null) {
+    if (_playMode != _playModeAll || _playingItemId == null) {
       if (mounted) {
         setState(() {
           _playingItemId = null;

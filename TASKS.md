@@ -91,3 +91,6 @@
 
 - [x] Fix: playing item is moved to top in source list for stable card binding.
 - [x] Fix: active card progress/time binding now follows `_playingItemId` directly.
+
+- [x] Fix: autoplay-next strictly gated by play mode = `all`.
+- [x] Default play mode changed to `track by track`.

@@ -42,3 +42,5 @@
 - Added backward-compatible audio source fallback to avoid hard dependency on newly deployed stream endpoint.
 
 - Replaced visual-only top pinning with source-list promotion on play to prevent stale card title/progress rendering after reorder.
+
+- Hardened play mode parsing with explicit enum-like constants (`all` / `single`) and fallback to `single` for unknown stored values.
