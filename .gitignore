@@ -8,3 +8,7 @@ __pycache__/
 node_modules/
 backend/storage/
 mp3.py
+# Release binaries
+apps/walkcast_mobile/releases/*.apk
+apps/walkcast_mobile/releases/*.aab
+apps/walkcast_mobile/releases/*.sha256

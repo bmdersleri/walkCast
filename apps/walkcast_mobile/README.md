@@ -37,28 +37,48 @@ flutter run -d chrome \
   --dart-define=WALKCAST_BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 ```
 
-## 3) Build APK for Android
+## 3) Build Android binaries (recommended)
 
 ```bash
 cd /home/haytekllm/projects/walkcast/apps/walkcast_mobile
-flutter build apk --release \
+flutter build apk --release --split-per-abi --shrink \
   --dart-define=WALKCAST_API_BASE_URL=http://YOUR_SERVER_IP:8000 \
   --dart-define=WALKCAST_BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 ```
 
-Output APK:
+Split APK outputs:
 
-`/home/haytekllm/projects/walkcast/apps/walkcast_mobile/build/app/outputs/flutter-apk/app-release.apk`
+`/home/haytekllm/projects/walkcast/apps/walkcast_mobile/build/app/outputs/flutter-apk/`
 
-GitHub APK download (repository file):
+Common files:
 
-- [walkcast-mobile-v0.1.0+1.apk](https://github.com/bmdersleri/walkCast/raw/main/apps/walkcast_mobile/releases/walkcast-mobile-v0.1.0+1.apk)
-- SHA256: `322c7279f693a6a6eb7e148de943db3a2dcaa6993445a77c102b77abf60ee91b`
+- `app-armeabi-v7a-release.apk`
+- `app-arm64-v8a-release.apk`
+- `app-x86_64-release.apk`
 
-## 4) Install APK (optional with ADB)
+Build AAB (Play upload):
 
 ```bash
-adb install -r /home/haytekllm/projects/walkcast/apps/walkcast_mobile/build/app/outputs/flutter-apk/app-release.apk
+flutter build appbundle --release \
+  --dart-define=WALKCAST_API_BASE_URL=http://YOUR_SERVER_IP:8000 \
+  --dart-define=WALKCAST_BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+```
+
+Output AAB:
+
+`/home/haytekllm/projects/walkcast/apps/walkcast_mobile/build/app/outputs/bundle/release/app-release.aab`
+
+## 4) Distribute APK
+
+Do not commit APK files into git history.
+Upload APK/AAB artifacts to GitHub Releases:
+
+- [https://github.com/bmdersleri/walkCast/releases](https://github.com/bmdersleri/walkCast/releases)
+
+## 5) Install APK (optional with ADB)
+
+```bash
+adb install -r /home/haytekllm/projects/walkcast/apps/walkcast_mobile/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
 ```
 
 ## How to use in app
