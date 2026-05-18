@@ -60,3 +60,8 @@
 - [ ] Implement quality radio selector on add URL form
 - [ ] Implement offline save state toggle in UI
 - [ ] Add first widget test for card state rendering
+
+## Maintenance
+
+- [x] Remove tracked runtime artifacts (`venv/`, `.run/`) from git history tip.
+- [x] Enforce ignore rules for local/runtime directories in `.gitignore`.

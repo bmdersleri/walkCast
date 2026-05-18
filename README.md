@@ -126,6 +126,12 @@ pytest -q backend/tests/test_items_api.py
 - `extension/` Chrome extension popup
 - `scripts/dev-servers.sh` local start/stop/restart helper
 
+## Repository Hygiene
+
+- Runtime and machine-local files are never committed.
+- Ignored paths include `.venv/`, `venv/`, `.run/`, `__pycache__/`, `.pytest_cache/`, `node_modules/`, and `*.db`.
+- Keep commits focused on source code, configuration, and documentation only.
+
 ## Next Delivery Milestone
 
 M1 target: Flutter MVP with parity for queue list, playback controls, delete confirmation, and offline save/play on Android.

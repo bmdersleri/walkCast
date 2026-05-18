@@ -6,6 +6,7 @@
 - Flutter becomes primary mobile client for better offline playback and native UX.
 - Backend stays source of truth for remote queue and conversion statuses.
 - Audio quality options are standardized as `good`, `medium`, `high`.
+- Repository hygiene is strict: local runtime artifacts (`venv/`, `.run/`) stay untracked.
 
 ## Technical Direction
 
