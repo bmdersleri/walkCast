@@ -50,6 +50,10 @@ Output APK:
 
 `/home/haytekllm/projects/walkcast/apps/walkcast_mobile/build/app/outputs/flutter-apk/app-release.apk`
 
+GitHub APK download (latest release):
+
+[https://github.com/bmdersleri/walkCast/releases/latest](https://github.com/bmdersleri/walkCast/releases/latest)
+
 ## 4) Install APK (optional with ADB)
 
 ```bash
