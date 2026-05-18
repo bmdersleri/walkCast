@@ -65,3 +65,5 @@
 - Introduced `_sequenceItems()` (canonical order) vs `_visibleItems()` (UI-pinned order) split to prevent next-track regression.
 
 - Top card now provides explicit adjacent-track navigation (`skip_previous` / `skip_next`) using ready-track sequence order.
+
+- Consolidated card actions: top-card-only seek controls and icon-based downloaded state improve scanability and reduce button clutter.

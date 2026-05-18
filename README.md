@@ -213,3 +213,6 @@ cd /home/haytekllm/projects/walkcast-clean
 - Playback sequence and UI pinning are now separated: auto-next uses canonical playlist order (e.g., 6->7), while UI still pins current track card to top.
 
 - Added previous/next track controls on the top queue card, wired to canonical playlist sequence.
+
+- UI simplified: fast rewind/forward controls are shown only on the top card; offline-play button removed.
+- Download icon now indicates downloaded/offline state via color tint.

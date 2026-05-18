@@ -14,7 +14,6 @@ class QueueItemCard extends StatelessWidget {
     required this.onMoveDown,
     required this.onDownload,
     required this.onToggleOffline,
-    required this.onPlayOffline,
     required this.onFastRewind,
     required this.onFastForward,
     required this.onPreviousTrack,
@@ -43,7 +42,6 @@ class QueueItemCard extends StatelessWidget {
   final VoidCallback onMoveDown;
   final VoidCallback onDownload;
   final VoidCallback onToggleOffline;
-  final VoidCallback onPlayOffline;
   final VoidCallback onFastRewind;
   final VoidCallback onFastForward;
   final VoidCallback onPreviousTrack;
@@ -209,6 +207,7 @@ class QueueItemCard extends StatelessWidget {
                         icon: Icons.download_rounded,
                         onPressed: onDownload,
                         tooltip: _isTr ? 'Indir' : 'Download',
+                        tint: isOfflineSaved ? Colors.teal : null,
                       ),
                       _iconAction(
                         context,
@@ -218,12 +217,6 @@ class QueueItemCard extends StatelessWidget {
                             ? (_isTr ? 'Cevrimdisi kayitli' : 'Offline saved')
                             : (_isTr ? 'Cevrimdisi kaydet' : 'Save offline'),
                         tint: isOfflineSaved ? Colors.teal : null,
-                      ),
-                      _iconAction(
-                        context,
-                        icon: Icons.play_circle_fill_rounded,
-                        onPressed: onPlayOffline,
-                        tooltip: _isTr ? 'Cevrimdisi oynat' : 'Play offline',
                       ),
                       if (isTopCard)
                         _iconAction(
@@ -239,18 +232,20 @@ class QueueItemCard extends StatelessWidget {
                           onPressed: onNextTrack,
                           tooltip: _isTr ? 'Sonraki parca' : 'Next track',
                         ),
-                      _iconAction(
-                        context,
-                        icon: Icons.fast_rewind_rounded,
-                        onPressed: onFastRewind,
-                        tooltip: _isTr ? 'Hizli geri sar' : 'Fast rewind',
-                      ),
-                      _iconAction(
-                        context,
-                        icon: Icons.fast_forward_rounded,
-                        onPressed: onFastForward,
-                        tooltip: _isTr ? 'Hizli ileri sar' : 'Fast forward',
-                      ),
+                      if (isTopCard)
+                        _iconAction(
+                          context,
+                          icon: Icons.fast_rewind_rounded,
+                          onPressed: onFastRewind,
+                          tooltip: _isTr ? 'Hizli geri sar' : 'Fast rewind',
+                        ),
+                      if (isTopCard)
+                        _iconAction(
+                          context,
+                          icon: Icons.fast_forward_rounded,
+                          onPressed: onFastForward,
+                          tooltip: _isTr ? 'Hizli ileri sar' : 'Fast forward',
+                        ),
                       _iconAction(
                         context,
                         icon: Icons.check_circle_rounded,

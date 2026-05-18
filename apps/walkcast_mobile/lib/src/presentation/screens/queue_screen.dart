@@ -333,14 +333,6 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
     }
   }
 
-  Future<void> _playOffline(QueueItem item) async {
-    if (!_offlineSavedIds.contains(item.id)) {
-      _snack(t('Save offline first.', 'Once cevrimdisi kaydet.'));
-      return;
-    }
-    await _togglePlay(item);
-  }
-
   Future<void> _handleTrackCompleted() async {
     final durationMs = _audioPlayer.duration?.inMilliseconds ?? _currentDuration.inMilliseconds;
     final positionMs = _audioPlayer.position.inMilliseconds;
@@ -657,7 +649,6 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
                     onMoveDown: () => _moveDown(globalIndex),
                     onDownload: () => _download(item),
                     onToggleOffline: () => _toggleOffline(item),
-                    onPlayOffline: () => _playOffline(item),
                     onFastRewind: () => _seekBySeconds(item, -10),
                     onFastForward: () => _seekBySeconds(item, 10),
                     onPreviousTrack: () => _playAdjacentTrack(anchorItem: item, delta: -1),

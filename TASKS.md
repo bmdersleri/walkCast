@@ -118,3 +118,7 @@
 - [x] Fix: auto-next now follows true playlist order while keeping active card visually pinned at top.
 
 - [x] Feature: top-card previous/next track buttons.
+
+- [x] UI: show fast rewind/forward only on top card.
+- [x] UI: remove offline-play button.
+- [x] UI: tint download icon when item is downloaded/offline-saved.
