@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>walkCast Mobile</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <h1>walkCast</h1>
+      <p>Listen and clean up your playlist fast.</p>
+    </header>
+
+    <section class="composer">
+      <input id="urlInput" type="url" placeholder="Paste YouTube URL" />
+      <button id="saveBtn">Save URL</button>
+    </section>
+
+    <section class="preferences">
+      <label>
+        Playback Speed
+        <select id="speedSelect">
+          <option value="1">1.0x</option>
+          <option value="1.25">1.25x</option>
+          <option value="1.5">1.5x</option>
+          <option value="1.75">1.75x</option>
+          <option value="2">2.0x</option>
+        </select>
+      </label>
+      <label class="toggle">
+        <input id="autoplayNext" type="checkbox" />
+        Auto play next ready track
+      </label>
+    </section>
+
+    <section class="playlist-section">
+      <h2 class="section-title">Playlist</h2>
+      <div id="items"></div>
+    </section>
+  </main>
+
+  <script src="./main.js" type="module"></script>
+</body>
+</html>

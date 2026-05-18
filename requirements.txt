@@ -1,0 +1,5 @@
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+sqlalchemy==2.0.41
+yt-dlp==2026.3.17
+pytest==8.2.2

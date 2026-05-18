@@ -1,0 +1,9 @@
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.db
+node_modules/
+backend/storage/
+mp3.py
