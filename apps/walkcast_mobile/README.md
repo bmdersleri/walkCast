@@ -2,6 +2,35 @@
 
 This folder contains the native Flutter client for walkCast.
 
+## Reliability update (0.1.1)
+
+- Play-all advances in playlist order, skipping listened and completed tracks.
+- The last queue is stored per server so downloaded tracks remain accessible
+  after reopening the app without a connection.
+- Android/iOS audio downloads are written to persistent app files. Existing
+  Hive audio is migrated on first startup; browser builds retain IndexedDB audio.
+- Downloads support cancellation and static-URL fallback. Bulk downloads report
+  failures and offer a retry of failed tracks only. Offline copies can be removed
+  individually or cleared without deleting server files.
+- Server settings validate the address and port, offer a connection test and
+  apply only after Save. Cache entries are isolated by server address.
+- AudioService owns playback and exposes play/pause, previous/next, seek and stop
+  through Android notifications and iOS lock-screen controls.
+
+Checks from this directory (validated with Flutter 3.47.6 / Dart 3.13.5):
+
+```powershell
+flutter pub get
+flutter analyze
+flutter test
+flutter build web --release
+```
+
+Android builds require an Android SDK; iOS builds require macOS/Xcode.
+On Windows, Flutter plugin setup also requires Developer Mode for symlink support.
+Before a mobile release, check background playback, lock-screen controls,
+headphone interruptions and airplane-mode playback on physical devices.
+
 The mobile app is a queue/listener UI for audio items that are created from YouTube links via the browser extension and processed by the backend API.
 
 ## Where to use it

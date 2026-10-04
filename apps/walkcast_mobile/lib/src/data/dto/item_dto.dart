@@ -54,4 +54,17 @@ class ItemDto {
       fileSizeBytes: fileSizeBytes,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'playlist_id': playlistId,
+    'playlist_name': playlistName,
+    'status': status,
+    'audio_quality': audioQuality,
+    'title': title,
+    'duration': duration,
+    'is_listened': isListened,
+    'filepath': filepath,
+    'file_size_bytes': fileSizeBytes,
+  };
 }

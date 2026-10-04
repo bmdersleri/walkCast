@@ -1,4 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'server_address.dart';
 
 class AppConfig {
   const AppConfig._();
@@ -14,6 +15,14 @@ class AppConfig {
     }
 
     final box = Hive.box('walkcast_prefs');
+    final saved = box.get('server_base_url') as String?;
+    if (saved != null) {
+      try {
+        return normalizeServerAddress(saved, '');
+      } on FormatException {
+        return _defaultApiBaseUrl;
+      }
+    }
     final hostRaw = (box.get('server_host', defaultValue: '') as String).trim();
     final portRaw = box.get('server_port', defaultValue: '').toString().trim();
 
@@ -21,20 +30,16 @@ class AppConfig {
       return _defaultApiBaseUrl;
     }
 
-    final withScheme = hostRaw.contains('://') ? hostRaw : 'http://$hostRaw';
-    final parsed = Uri.tryParse(withScheme);
-    if (parsed == null || parsed.host.isEmpty) {
+    try {
+      final parsed = Uri.tryParse(
+        hostRaw.contains('://') ? hostRaw : 'http://$hostRaw',
+      );
+      final legacyPort = portRaw.isEmpty && parsed != null && !parsed.hasPort
+          ? Uri.parse(_defaultApiBaseUrl).port.toString()
+          : portRaw;
+      return normalizeServerAddress(hostRaw, legacyPort);
+    } on FormatException {
       return _defaultApiBaseUrl;
     }
-
-    final defaultUri = Uri.parse(_defaultApiBaseUrl);
-    final scheme = parsed.scheme.isEmpty ? defaultUri.scheme : parsed.scheme;
-    final port = int.tryParse(portRaw) ?? (parsed.hasPort ? parsed.port : defaultUri.port);
-
-    return Uri(
-      scheme: scheme,
-      host: parsed.host,
-      port: port,
-    ).toString();
   }
 }

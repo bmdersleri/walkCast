@@ -215,9 +215,9 @@ class QueueItemCard extends StatelessWidget {
                       ),
                       _iconAction(
                         context,
-                        icon: Icons.download_rounded,
+                        icon: isDownloading ? Icons.cancel_outlined : Icons.download_rounded,
                         onPressed: onDownload,
-                        tooltip: _isTr ? 'Indir' : 'Download',
+                        tooltip: isDownloading ? (_isTr ? 'Indirmeyi iptal et' : 'Cancel download') : (_isTr ? 'Indir' : 'Download'),
                         tint: isOfflineSaved ? Colors.teal : null,
                       ),
                       _iconAction(
@@ -225,7 +225,7 @@ class QueueItemCard extends StatelessWidget {
                         icon: isOfflineSaved ? Icons.cloud_done_rounded : Icons.cloud_download_rounded,
                         onPressed: onToggleOffline,
                         tooltip: isOfflineSaved
-                            ? (_isTr ? 'Cevrimdisi kayitli' : 'Offline saved')
+                            ? (_isTr ? 'Cevrimdisi kopyayi kaldir' : 'Remove offline copy')
                             : (_isTr ? 'Cevrimdisi kaydet' : 'Save offline'),
                         tint: isOfflineSaved ? Colors.teal : null,
                       ),
