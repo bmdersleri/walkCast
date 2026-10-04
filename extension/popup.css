@@ -209,3 +209,9 @@ button {
   max-width: 120px;
   padding: 0 6px;
 }
+
+.message { padding: 8px; border-radius: 8px; font-size: .78rem; overflow-wrap: anywhere; }
+.message.success { background: #e3f5ec; color: var(--ready); }
+.message.error { background: #fee8e8; color: var(--error); }
+.message[hidden] { display: none; }
+.progress-fill.is-indeterminate { background: repeating-linear-gradient(110deg, #0d8a72 0 12px, #60b8a6 12px 24px); }

@@ -20,7 +20,7 @@
     </header>
 
     <section class="row">
-      <input id="apiBase" type="text" value="http://127.0.0.1:8000/api/v1" />
+      <input aria-label="Server API address" id="apiBase" type="text" value="http://127.0.0.1:8000/api/v1" />
       <button id="saveConfig" class="icon-btn" title="Save API base" aria-label="Save API base">✓</button>
     </section>
 
@@ -43,6 +43,7 @@
       <button id="refresh" class="icon-btn" title="Refresh list" aria-label="Refresh list">↻</button>
     </section>
 
+    <p id="message" class="message" role="status" aria-live="polite" hidden></p>
     <section id="list"></section>
   </main>
 
